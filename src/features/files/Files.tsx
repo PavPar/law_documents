@@ -5,26 +5,29 @@
 
 import { Button, Form, Input, Typography } from "antd";
 import { Content } from "antd/es/layout/layout";
+
 import React, { useEffect, useState } from "react";
 
 const fs = window.require("fs");
-
+const path = window.require("path");
+const { ipcRenderer } = window.require("electron");
 const { Title } = Typography;
 
 export function Files() {
-  const [path, setPath] = useState<string | undefined>("./");
-  const [files, setFiles] = useState<any>();
-  useEffect(() => {
-    //TODO: types
-    if (!path) {
-      console.log("damn");
-      return;
-    }
-    fs.readdir(path, {}, (err: unknown, files: unknown[]) => {
-      console.log(err, files);
-      setFiles(files);
-    });
-  }, [path]);
+  //   const [path, setPath] = useState<string | undefined>("./");
+  const [files, setFiles] = useState<string[]>([]);
+  const [src, setSrc] = useState<string>([]);
+  //   useEffect(() => {
+  //     //TODO: types
+  //     // if (!path) {
+  //     //   console.log("damn");
+  //     //   return;
+  //     // }
+  //     fs.readdir(path, {}, (err: unknown, files: unknown[]) => {
+  //       console.log(err, files);
+  //       //   setFiles(files);
+  //     });
+  //   }, [path]);
 
   return (
     <div>
@@ -32,7 +35,7 @@ export function Files() {
       <Content>
         <Form
           onFinish={(values) => {
-            setPath(values?.path);
+            // setPath(values?.path);
             console.log(values);
             console.log(values.file?.path);
             console.log(values.file?.value);
@@ -55,12 +58,11 @@ export function Files() {
           <Button htmlType="submit">look</Button>
           <Button
             onClick={() => {
-              const { ipcRenderer } = window.require("electron");
-
               ipcRenderer
                 .invoke("file-dialog")
-                .then((result) => {
-                  console.log(result);
+                .then((result: Electron.OpenDialogReturnValue) => {
+                  console.log(result.filePaths);
+                  setFiles(result.filePaths);
                 })
                 .catch((err) => {
                   console.error(err);
@@ -69,10 +71,46 @@ export function Files() {
           >
             open dialog
           </Button>
+          <Button
+            onClick={() => {
+              fs.mkdir("./test", (err: any) => {
+                console.error(err);
+              });
+              files.forEach((filePath, idx) => {
+                fs.copyFile(
+                  filePath,
+                  path.join("./test", path.basename(filePath)),
+                  (err: any) => {
+                    console.error(err);
+                  }
+                );
+              });
+            }}
+          >
+            create file copy
+          </Button>
+          <Button
+            onClick={() => {
+              ipcRenderer
+                .invoke("image-display")
+                .then((res) => {
+                  console.log(res);
+                  setSrc(`data:image/jpg;base64,${res}`);
+                })
+                .catch((err) => console.error(err));
+            }}
+          >
+            load and display image
+          </Button>
         </Form>
         {(files || []).map((fName: string) => {
-          return <div>{fName}</div>;
+          return (
+            <div>
+              <div>{fName}</div>
+            </div>
+          );
         })}
+        <img src={src}></img>
       </Content>
     </div>
   );
