@@ -1,10 +1,14 @@
 import React from "react";
 import { createRoot } from "react-dom/client";
-import { Layout } from "./features/Layout";
+import { App } from "./features/App";
+import { store } from "./app/store";
+import { Provider } from "react-redux";
 
-const root = createRoot(document.body);
+const domNode = document.getElementById("root");
+const root = createRoot(domNode);
+
 root.render(
-  <div>
-    <Layout />
-  </div>
+  <Provider store={store}>
+    <App />
+  </Provider>
 );
