@@ -14,11 +14,13 @@ type State = {
   filePaths?: string[];
   files?: Dree;
   status: FetchStatus;
+  displayImageStatus: FetchStatus;
   data?: string;
 };
 
 const initialState: State = {
   status: "idle",
+  displayImageStatus: "idle",
 };
 
 type SetRootDirPayload = State["projectPath"];
@@ -58,15 +60,15 @@ export const projectSlice = createSlice({
     });
     // get directory tree
     builder.addCase(displayImageByPathThunk.pending, (state, action) => {
-      state.status = "pending";
+      state.displayImageStatus = "pending";
       state.data = initialState?.data;
     });
     builder.addCase(displayImageByPathThunk.fulfilled, (state, action) => {
-      state.status = "idle";
+      state.displayImageStatus = "idle";
       state.data = action.payload;
     });
     builder.addCase(displayImageByPathThunk.rejected, (state, action) => {
-      state.status = "failed";
+      state.displayImageStatus = "failed";
     });
   },
 });
@@ -78,6 +80,8 @@ export const selectProjectPath = (state: RootState) =>
 export const selectFilePaths = (state: RootState) => state.project.filePaths;
 export const selectFiles = (state: RootState) => state.project.files;
 export const selectStatus = (state: RootState) => state.project.status;
+export const selectDisplayImageStatus = (state: RootState) =>
+  state.project.displayImageStatus;
 export const selectData = (state: RootState) => state.project.data;
 
 export default projectSlice.reducer;

@@ -8,3 +8,12 @@ export enum IPC_HANDLES {
 }
 
 export type FetchStatus = "idle" | "pending" | "failed";
+
+export const DREE_IMAGE_OPTIONS = {
+  stat: false,
+  normalize: true,
+  followLinks: true,
+  size: true,
+  hash: true,
+  extensions: ["jpeg", "jpg", "png", "gif"],
+};

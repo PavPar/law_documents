@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-var-requires */
 import { app, BrowserWindow, ipcMain, dialog } from "electron";
-import { IPC_HANDLES } from "./app/constants";
+import { DREE_IMAGE_OPTIONS, IPC_HANDLES } from "./app/constants";
 import { Dree } from "dree";
 const fs = require("fs");
 const dree = require("dree");
@@ -55,7 +55,7 @@ const createWindow = (): void => {
       });
 
       if (result.filePaths && result.filePaths[0]) {
-        const tree: Dree = dree.scan(result.filePaths[0]);
+        const tree: Dree = dree.scan(result.filePaths[0], DREE_IMAGE_OPTIONS);
 
         return tree;
       }

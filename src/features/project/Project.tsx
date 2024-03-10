@@ -1,10 +1,11 @@
-import React, { useEffect } from "react";
-import { Button, Layout } from "antd";
+import React, { useEffect, useState } from "react";
+import { Button, Layout, Spin, Tree, TreeDataNode, Typography } from "antd";
 const { Header, Footer, Sider, Content } = Layout;
 import { css } from "@emotion/css";
 import { useAppDispatch, useAppSelector } from "../../app/store";
 import {
   selectData,
+  selectDisplayImageStatus,
   selectFilePaths,
   selectFiles,
   selectStatus,
@@ -15,6 +16,10 @@ import {
   getDirectoryTreeThunk,
   openFileDialogThunk,
 } from "./slice/thunks";
+import { TransformComponent, TransformWrapper } from "react-zoom-pan-pinch";
+import { TreeNode, useTreeNodeStructure } from "./hooks/useTreeNodeStructure";
+
+const { Text } = Typography;
 
 export function Project() {
   const dispatch = useAppDispatch();
@@ -22,11 +27,18 @@ export function Project() {
   //   const files = useAppSelector(selectFilePaths);
   const files = useAppSelector(selectFiles);
   const status = useAppSelector(selectStatus);
+  const displayImageStatus = useAppSelector(selectDisplayImageStatus);
   const imageData = useAppSelector(selectData);
+
+  const [treeData, setTreeData] = useState<TreeNode>();
 
   useEffect(() => {
     console.log(files);
     console.log(openFileDialogThunk);
+    if (files) {
+      setTreeData(useTreeNodeStructure(files));
+      console.log(useTreeNodeStructure(files));
+    }
   }, [files]);
 
   useEffect(() => {
@@ -44,9 +56,13 @@ export function Project() {
         <div
           className={css`
             display: grid;
+            overflow-y: scroll;
+            max-height: 100vh;
+            padding-bottom: 100px;
+            gap: 5px;
           `}
         >
-          {files?.children?.map((f) => {
+          {/* {files?.children?.map((f) => {
             return (
               <Button
                 key={f.hash}
@@ -58,7 +74,18 @@ export function Project() {
                 {f.name}
               </Button>
             );
-          })}
+          })} */}
+          {treeData && (
+            <Tree
+              showLine={true}
+              showIcon={true}
+              defaultExpandedKeys={["0"]}
+              onClick={(e, node) => {
+                dispatch(displayImageByPathThunk(node.data.path));
+              }}
+              treeData={[treeData]}
+            />
+          )}
         </div>
       </Sider>
       <Layout>
@@ -78,17 +105,30 @@ export function Project() {
           >
             открыть папку
           </Button>
-
-          {imageData ? (
-            <img
-              className={css`
-                width: 75vw;
-              `}
-              src={`data:image/jpg;base64,${imageData}`}
-            ></img>
-          ) : (
-            <div>nothing</div>
-          )}
+          <TransformWrapper>
+            <TransformComponent>
+              {imageData ? (
+                <img
+                  className={css`
+                    width: 75vw;
+                  `}
+                  src={`data:image/jpg;base64,${imageData}`}
+                ></img>
+              ) : (
+                <>
+                  {displayImageStatus === "idle" && (
+                    <Text>Здесь будет изображение</Text>
+                  )}
+                  {displayImageStatus === "pending" && (
+                    <Text>Загрузка изображения</Text>
+                  )}
+                  {displayImageStatus === "failed" && (
+                    <Text>Не удалось открыть изображение</Text>
+                  )}
+                </>
+              )}
+            </TransformComponent>
+          </TransformWrapper>
         </Content>
       </Layout>
     </Layout>
