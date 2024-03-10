@@ -1,25 +1,84 @@
-// var fs = require('fs');
+import { Dree } from "dree";
 
-// function readFiles(dirname, onFileContent, onError) {
-//   fs.readdir(dirname, function(err, filenames) {
-//     if (err) {
-//       onError(err);
-//       return;
-//     }
-//     filenames.forEach(function(filename) {
-//       fs.readFile(dirname + filename, 'utf-8', function(err, content) {
-//         if (err) {
-//           onError(err);
-//           return;
-//         }
-//         onFileContent(filename, content);
-//       });
-//     });
-//   });
+type GroupsFileTestType = { group: string; filepaths: string[] };
 
-//   var data = {};
-// readFiles('dirname/', function(filename, content) {
-//   data[filename] = content;
-// }, function(err) {
-//   throw err;
-// });
+/*
+
+Для поиска все равно потребуется сделать таблицу => при старте надо пройти все дерево
+При работе с созданием/удалением групп => надо будет обновлять таблицу
+
+? Как хранить данные в json файле при учете что группы могут быть в группах?
+
+v1 без учета группы в группах 
+
+{
+    group_1: files
+    group_2: files
+}
+
+v2 с учетом группа в группе
+
+{
+    group_1: {
+        name: group_1,
+        files: files,
+        parent_id: string
+    },
+    group_2: {
+        name: group_1,
+        files: files,
+        parent_id: string
+    },
+    group_3: {
+        name: group_1,
+        files: files,
+        parent_id: string
+    }
+}
+
+v3 улучшенная 
+
+{
+    [uidv4] : {
+        name: group_1,
+        files: files,
+        parent_id: string
+    },
+    [uidv4] : {
+        name: group_1,
+        files: files,
+        parent_id: string
+    },
+    [uidv4] : {
+        name: group_1,
+        files: files,
+        parent_id: string
+    },
+}
+*/
+
+type ProductItem = {
+  name: string;
+  type: "file" | "group";
+  items?: ProductItem[]; // TODO: items только для групп ?
+  parent_id: string; // TODO: parent => использовать гененрацию в виде uuidv4 с проверкой на наличие дубликтов (чтобы точно нельзя было иметь дублиаката item);
+};
+
+type Product = {
+  name: string;
+  items: ProductItem[];
+};
+
+/*
+
+{
+    name:test_1,
+    items:{
+        test_2:{
+            name:test_2,
+
+        }
+    }
+}
+
+*/

@@ -62,19 +62,6 @@ export function Project() {
             gap: 5px;
           `}
         >
-          {/* {files?.children?.map((f) => {
-            return (
-              <Button
-                key={f.hash}
-                onClick={() => {
-                  console.log(f);
-                  dispatch(displayImageByPathThunk(f.path));
-                }}
-              >
-                {f.name}
-              </Button>
-            );
-          })} */}
           {treeData && (
             <Tree
               showLine={true}
