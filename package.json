@@ -44,7 +44,7 @@
     "@emotion/css": "^11.11.2",
     "@emotion/react": "^11.11.4",
     "@reduxjs/toolkit": "^2.2.1",
-    "@types/node": "^20.11.20",
+    "@types/node": "^20.11.28",
     "antd": "^5.14.1",
     "dree": "^4.7.0",
     "electron-squirrel-startup": "^1.0.0",

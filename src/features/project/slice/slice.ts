@@ -3,45 +3,82 @@ import {
   displayImageByPathThunk,
   getDirectoryTreeThunk,
   openFileDialogThunk,
+  scanForImagesInDirThunk,
 } from "./thunks";
 import { FetchStatus } from "../../../app/constants";
 import { RootState } from "../../../app/store";
 import { getDirectoryTree } from "./api";
 import { Dree } from "dree";
 
+export enum ProductItemType {
+  file = "FILE",
+  group = "GROUP",
+}
+
+export type ProductItem = {
+  uid: string;
+  name: string;
+  // type: ProductItemType;
+  items?: string[]; // TODO: items только для групп ?
+  parent_id?: string; // TODO: parent => использовать гененрацию в виде uuidv4 с проверкой на наличие дубликтов (чтобы точно нельзя было иметь дублиаката item);
+};
+
+export type Product = {
+  name: string;
+  items: ProductItem[];
+};
+
 type State = {
-  projectPath?: string;
-  filePaths?: string[];
+  projectWorkDirPath?: string;
+
+  //all files in directory
   files?: Dree;
   status: FetchStatus;
+
+  //image display
   displayImageStatus: FetchStatus;
   data?: string;
+
+  //categories
+  projectTreeData: Product;
 };
 
 const initialState: State = {
   status: "idle",
   displayImageStatus: "idle",
+  projectTreeData: {
+    name: "new product",
+    items: [],
+  },
 };
 
-type SetRootDirPayload = State["projectPath"];
+type SetRootDirPayload = State["projectWorkDirPath"];
+type CreateProductTreeNodePayload = ProductItem;
 
 export const projectSlice = createSlice({
   name: "project",
   initialState,
   reducers: {
-    setRootDir: (state: State, action: PayloadAction<SetRootDirPayload>) => {
-      state.projectPath = action.payload;
+    setProjectWorkDirPath: (
+      state: State,
+      action: PayloadAction<SetRootDirPayload>
+    ) => {
+      state.projectWorkDirPath = action.payload;
+    },
+    createProductTreeNode: (
+      state: State,
+      action: PayloadAction<CreateProductTreeNodePayload>
+    ) => {
+      state.projectTreeData.items.push(action.payload);
     },
   },
   extraReducers: (builder) => {
     builder.addCase(openFileDialogThunk.pending, (state, action) => {
       state.status = "pending";
-      state.filePaths = [];
     });
     builder.addCase(openFileDialogThunk.fulfilled, (state, action) => {
       state.status = "idle";
       console.log(action.payload);
-      state.filePaths = action.payload.filePaths;
     });
     builder.addCase(openFileDialogThunk.rejected, (state, action) => {
       state.status = "failed";
@@ -56,6 +93,18 @@ export const projectSlice = createSlice({
       state.files = action.payload;
     });
     builder.addCase(getDirectoryTreeThunk.rejected, (state, action) => {
+      state.status = "failed";
+    });
+    // scan for images
+    builder.addCase(scanForImagesInDirThunk.pending, (state, action) => {
+      state.status = "pending";
+      state.files = initialState?.files;
+    });
+    builder.addCase(scanForImagesInDirThunk.fulfilled, (state, action) => {
+      state.status = "idle";
+      state.files = action.payload;
+    });
+    builder.addCase(scanForImagesInDirThunk.rejected, (state, action) => {
       state.status = "failed";
     });
     // get directory tree
@@ -73,15 +122,17 @@ export const projectSlice = createSlice({
   },
 });
 
-export const { setRootDir } = projectSlice.actions;
+export const { setProjectWorkDirPath, createProductTreeNode } =
+  projectSlice.actions;
 
 export const selectProjectPath = (state: RootState) =>
-  state.project.projectPath;
-export const selectFilePaths = (state: RootState) => state.project.filePaths;
+  state.project.projectWorkDirPath;
 export const selectFiles = (state: RootState) => state.project.files;
 export const selectStatus = (state: RootState) => state.project.status;
 export const selectDisplayImageStatus = (state: RootState) =>
   state.project.displayImageStatus;
 export const selectData = (state: RootState) => state.project.data;
+export const selectProjectStructure = (state: RootState) =>
+  state.project.projectTreeData;
 
 export default projectSlice.reducer;

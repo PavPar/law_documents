@@ -56,29 +56,3 @@ v3 улучшенная
     },
 }
 */
-
-type ProductItem = {
-  name: string;
-  type: "file" | "group";
-  items?: ProductItem[]; // TODO: items только для групп ?
-  parent_id: string; // TODO: parent => использовать гененрацию в виде uuidv4 с проверкой на наличие дубликтов (чтобы точно нельзя было иметь дублиаката item);
-};
-
-type Product = {
-  name: string;
-  items: ProductItem[];
-};
-
-/*
-
-{
-    name:test_1,
-    items:{
-        test_2:{
-            name:test_2,
-
-        }
-    }
-}
-
-*/

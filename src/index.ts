@@ -1,9 +1,6 @@
 /* eslint-disable @typescript-eslint/no-var-requires */
-import { app, BrowserWindow, ipcMain, dialog } from "electron";
-import { DREE_IMAGE_OPTIONS, IPC_HANDLES } from "./app/constants";
-import { Dree } from "dree";
-const fs = require("fs");
-const dree = require("dree");
+import { app, BrowserWindow } from "electron";
+import { ipcHandlersMain } from "./app/ipcHandles/ipcHandlesMain";
 
 // const { app, BrowserWindow, ipcMain, dialog } = require("electron");
 
@@ -36,64 +33,13 @@ const createWindow = (): void => {
     },
   });
 
-  ipcMain.handle(
-    IPC_HANDLES.OPEN_DIRECTORY_DIALOG,
-    async (event, someArgument) => {
-      const result = await dialog.showOpenDialog({
-        properties: ["openDirectory"],
-      });
-
-      return result;
-    }
-  );
-
-  ipcMain.handle(
-    IPC_HANDLES.GET_DIRECTORY_TREE,
-    async (event, someArgument) => {
-      const result = await dialog.showOpenDialog({
-        properties: ["openDirectory"],
-      });
-
-      if (result.filePaths && result.filePaths[0]) {
-        const tree: Dree = dree.scan(result.filePaths[0], DREE_IMAGE_OPTIONS);
-
-        return tree;
-      }
-
-      return;
-    }
-  );
-
-  ipcMain.handle(IPC_HANDLES.FILE_OPEN_DIALOG, async (event, someArgument) => {
-    const result = await dialog.showOpenDialog({
-      properties: ["multiSelections", "openFile", "openDirectory"],
-    });
-
-    return result;
-  });
-
-  //https://stackoverflow.com/questions/50781741/select-and-display-an-image-from-the-filesystem-with-electron
-  ipcMain.handle(IPC_HANDLES.DISPLAY_IMAGE, (event, arg) => {
-    const result = dialog.showOpenDialog({
-      properties: ["openFile"],
-      filters: [{ name: "Images", extensions: ["png", "jpg", "jpeg"] }],
-    });
-
-    return result.then(({ canceled, filePaths, bookmarks }) => {
-      const base64 = fs.readFileSync(filePaths[0]).toString("base64");
-      return base64;
-    });
-  });
-
-  ipcMain.handle(IPC_HANDLES.DISPLAY_IMAGE_DATA_BY_PATH, (event, path) => {
-    return fs.readFileSync(path).toString("base64");
-  });
-
   // and load the index.html of the app.
   mainWindow.loadURL(MAIN_WINDOW_WEBPACK_ENTRY);
 
   // Open the DevTools.
   mainWindow.webContents.openDevTools();
+
+  ipcHandlersMain();
 };
 
 // This method will be called when Electron has finished
