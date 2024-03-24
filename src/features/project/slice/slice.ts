@@ -9,29 +9,17 @@ import { FetchStatus } from "../../../app/constants";
 import { RootState } from "../../../app/store";
 import { getDirectoryTree } from "./api";
 import { Dree } from "dree";
+import { ProjectData, ProjectItem } from "./types";
 
 export enum ProductItemType {
   file = "FILE",
   group = "GROUP",
 }
 
-export type ProductItem = {
-  uid: string;
-  name: string;
-  // type: ProductItemType;
-  items?: string[]; // TODO: items только для групп ?
-  parent_id?: string; // TODO: parent => использовать гененрацию в виде uuidv4 с проверкой на наличие дубликтов (чтобы точно нельзя было иметь дублиаката item);
-};
-
-export type Product = {
-  name: string;
-  items: ProductItem[];
-};
-
 type State = {
   projectWorkDirPath?: string;
-
-  //all files in directory
+  project?: ProjectData;
+  //delete later
   files?: Dree;
   status: FetchStatus;
 
@@ -39,21 +27,15 @@ type State = {
   displayImageStatus: FetchStatus;
   data?: string;
 
-  //categories
-  projectTreeData: Product;
+  //productData
 };
 
 const initialState: State = {
   status: "idle",
   displayImageStatus: "idle",
-  projectTreeData: {
-    name: "new product",
-    items: [],
-  },
 };
 
 type SetRootDirPayload = State["projectWorkDirPath"];
-type CreateProductTreeNodePayload = ProductItem;
 
 export const projectSlice = createSlice({
   name: "project",
@@ -65,11 +47,35 @@ export const projectSlice = createSlice({
     ) => {
       state.projectWorkDirPath = action.payload;
     },
-    createProductTreeNode: (
+    setProjectName: (
       state: State,
-      action: PayloadAction<CreateProductTreeNodePayload>
+      action: PayloadAction<ProjectData["name"]>
     ) => {
-      state.projectTreeData.items.push(action.payload);
+      state.project.name = action.payload;
+    },
+    setProject: (state: State, action: PayloadAction<ProjectData>) => {
+      state.project = action.payload;
+    },
+    addItemsToProject: (
+      state: State,
+      action: PayloadAction<ProjectData["items"]>
+    ) => {
+      state.project.items = [...state.project.items, ...action.payload];
+    },
+    setProjectItems: (
+      state: State,
+      action: PayloadAction<ProjectData["items"]>
+    ) => {
+      state.project.items = action.payload;
+    },
+    removeItemsFromProject: (
+      state: State,
+      action: PayloadAction<ProjectItem["uid"][]>
+    ) => {
+      const itemSet = new Set(action.payload);
+      state.project.items = state.project.items.filter(
+        (i) => !itemSet.has(i.uid)
+      );
     },
   },
   extraReducers: (builder) => {
@@ -122,8 +128,14 @@ export const projectSlice = createSlice({
   },
 });
 
-export const { setProjectWorkDirPath, createProductTreeNode } =
-  projectSlice.actions;
+export const {
+  setProjectWorkDirPath,
+  addItemsToProject,
+  removeItemsFromProject,
+  setProjectItems,
+  setProjectName,
+  setProject,
+} = projectSlice.actions;
 
 export const selectProjectPath = (state: RootState) =>
   state.project.projectWorkDirPath;
@@ -132,7 +144,7 @@ export const selectStatus = (state: RootState) => state.project.status;
 export const selectDisplayImageStatus = (state: RootState) =>
   state.project.displayImageStatus;
 export const selectData = (state: RootState) => state.project.data;
-export const selectProjectStructure = (state: RootState) =>
-  state.project.projectTreeData;
+
+export const selectProjectData = (state: RootState) => state.project.project;
 
 export default projectSlice.reducer;

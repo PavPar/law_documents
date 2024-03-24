@@ -9,13 +9,13 @@ import {
   selectDisplayImageStatus,
   selectFiles,
   selectProjectPath,
-  selectProjectStructure,
   selectStatus,
 } from "./slice/slice";
 import { displayImageByPathThunk } from "./slice/thunks";
 import { TransformComponent, TransformWrapper } from "react-zoom-pan-pinch";
 import { TreeNode, useTreeNodeStructure } from "./hooks/useTreeNodeStructure";
 import { ProjectHeader } from "./components/ProjectHeader";
+import { filesToProjectStructure } from "./utils/projectStructureMethods";
 // import { Type } from "dree";
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const dree = window.require("dree");
@@ -27,8 +27,6 @@ export function Project() {
 
   const files = useAppSelector(selectFiles);
   const status = useAppSelector(selectStatus);
-  const struct = useAppSelector(selectProjectStructure);
-  const projectWorkDirPath = useAppSelector(selectProjectPath);
 
   const displayImageStatus = useAppSelector(selectDisplayImageStatus);
   const imageData = useAppSelector(selectData);
@@ -38,6 +36,7 @@ export function Project() {
   useEffect(() => {
     if (files) {
       setTreeData(useTreeNodeStructure(files));
+      filesToProjectStructure(files);
     }
   }, [files]);
 

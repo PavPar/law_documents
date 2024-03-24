@@ -14,6 +14,8 @@ import {
   HandleScanDirForImagesPayload,
   HandleScanDirForImagesResult,
 } from "../../../app/ipcHandles/handleFunctions/scanDirForImagesHandle";
+import { HandleFileReadPayload } from "../../../app/ipcHandles/handleFunctions/readFileHandle";
+import { HandleFileReadResult } from "../../../app/ipcHandles/handleFunctions/readFileHandle";
 
 // import { ipcRenderer } from "electron";
 const { ipcRenderer } = window.require("electron");
@@ -61,4 +63,11 @@ export function scanForImagesInDir(payload: HandleScanDirForImagesPayload) {
 
 export function openProjectOpenDialog(): Promise<Electron.OpenDialogReturnValue> {
   return ipcRenderer.invoke(IPC_HANDLES.OPEN_PROJECT_DIALOG);
+}
+
+export function readFile(payload: HandleFileReadPayload) {
+  return ipcRenderer.invoke(
+    IPC_HANDLES.FILE_READ,
+    payload
+  ) as Promise<HandleFileReadResult>;
 }

@@ -1,3 +1,5 @@
+import { ProjectData } from "../features/project/slice/types";
+
 export enum IPC_HANDLES {
   OPEN_DIRECTORY_DIALOG = "open-directory-dialog",
   GET_DIRECTORY_TREE = "get-directory-tree",
@@ -7,6 +9,8 @@ export enum IPC_HANDLES {
   COPY_FILES = "copy-files",
   SCAN_DIR_FOR_IMAGES = "scan-dir-for-images",
   OPEN_PROJECT_DIALOG = "open-project-dialog",
+  FILE_READ = "file_read",
+  FILE_WRITE = "file_write",
   // === old ones
   FILE_OPEN_DIALOG = "file-dialog",
   DISPLAY_IMAGE = "image-display",
@@ -22,3 +26,14 @@ export const DREE_IMAGE_OPTIONS = {
   hash: true,
   extensions: ["jpeg", "jpg", "png", "gif"],
 };
+
+export const PROJECT_FOLDER_STUCTURE = Object.freeze({
+  root: ".",
+  images: "img",
+});
+
+export const PROJECT_FILE_INITAL_STATE: ProjectData = Object.seal({
+  imgDirPath: PROJECT_FOLDER_STUCTURE.images,
+  items: [],
+  name: "new-project",
+} as ProjectData);

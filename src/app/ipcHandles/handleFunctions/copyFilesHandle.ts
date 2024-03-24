@@ -11,6 +11,7 @@ export type HandleCopyFilesResult = {
   payload: HandleCopyFilesPayload;
   success: boolean;
   dest: string;
+  newFilesPaths?: string[];
 };
 
 const fs = require("fs");
@@ -21,12 +22,17 @@ export async function handleCopyFiles(
   payload: HandleCopyFilesPayload
 ): Promise<HandleCopyFilesResult> {
   const { dest, files } = payload;
+
   let status = true;
+  const newFilesPaths: string[] = [];
+
   Promise.all(
     files.map((f) => {
+      const newFilePath = path.join(dest, path.basename(f));
+      newFilesPaths.push(newFilePath);
       return copyFilePromise(
         f,
-        path.join(dest, path.basename(f)),
+        newFilePath,
         fs.constants.COPYFILE_FICLONE,
         (err: unknown) => {
           if (err) {
@@ -55,6 +61,7 @@ export async function handleCopyFiles(
       dest,
       payload,
       success: status,
+      newFilesPaths,
     } as HandleCopyFilesResult);
   });
 }

@@ -32,6 +32,7 @@
     "css-loader": "^6.10.0",
     "electron": "28.2.2",
     "eslint": "^8.56.0",
+    "eslint-import-resolver-alias": "^1.1.2",
     "eslint-plugin-import": "^2.29.1",
     "fork-ts-checker-webpack-plugin": "^7.3.0",
     "node-loader": "^2.0.0",
@@ -56,6 +57,7 @@
     "react-router": "^6.22.2",
     "react-zoom-pan-pinch": "^3.4.3",
     "redux-logger": "^3.0.6",
-    "tesseract.js": "^5.0.4"
+    "tesseract.js": "^5.0.4",
+    "uuid": "^9.0.1"
   }
 }

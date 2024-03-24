@@ -13,8 +13,21 @@ import {
   openFileOpenDialog,
   copyFiles,
   openProjectOpenDialog,
+  readFile,
 } from "../slice/api";
-import { selectProjectPath, setProjectWorkDirPath } from "../slice/slice";
+import {
+  selectProjectPath,
+  setProject,
+  setProjectItems,
+  setProjectName,
+  setProjectWorkDirPath,
+} from "../slice/slice";
+import {
+  PROJECT_FILE_INITAL_STATE,
+  PROJECT_FOLDER_STUCTURE,
+} from "../../../app/constants";
+import { imageToProjectStructure } from "../utils/projectStructureMethods";
+import { ProjectDataTypeGuard } from "../utils/projectDataTypeGuard";
 const path = window.require("path");
 
 const { Text } = Typography;
@@ -23,65 +36,63 @@ export function ProjectHeader() {
   const dispatch = useAppDispatch();
   const projectWorkDirPath = useAppSelector(selectProjectPath);
 
-  function createProject(projectName: string) {
-    openDirDialog()
-      .then((res: Electron.OpenDialogReturnValue) => {
-        if (res.canceled) {
-          throw new Error("canceled");
-        }
-        console.log(res);
-        const projectPath = res.filePaths[0];
+  async function createProject(projectName: string) {
+    try {
+      const dirDialogRes = await openDirDialog();
+      if (dirDialogRes.canceled) {
+        throw new Error("canceled");
+      }
+      const projectPath = dirDialogRes.filePaths[0];
 
-        return createDirByPath({
-          dpath: projectPath,
-          name: projectName,
-          options: {
-            recursive: true,
-          },
-        });
-      })
-      .then((res) => {
-        console.log(res.dirPath);
-        dispatch(setProjectWorkDirPath(res.dirPath));
-        createFileByPath({
-          fpath: res.dirPath,
-          name: `${projectName}.json`,
-          content: JSON.stringify(""),
-        });
-        dispatch(
-          scanForImagesInDirThunk({
-            dpath: res.dirPath,
-          })
-        );
-      })
-      .catch((err) => console.error(err));
+      const createDirRes = await createDirByPath({
+        dpath: projectPath,
+        name: projectName,
+        options: {
+          recursive: true,
+        },
+      });
+      const createSubDirRes = await createDirByPath({
+        dpath: createDirRes.dirPath,
+        name: PROJECT_FOLDER_STUCTURE.images,
+        options: {
+          recursive: true,
+        },
+      });
+      dispatch(setProjectWorkDirPath(createDirRes.dirPath));
+      const projectFileData = Object.assign({}, PROJECT_FILE_INITAL_STATE);
+      projectFileData.name = projectName;
+      await createFileByPath({
+        fpath: createDirRes.dirPath,
+        name: `${projectName}.json`,
+        content: JSON.stringify(projectFileData),
+      });
+      dispatch(
+        scanForImagesInDirThunk({
+          dpath: createDirRes.dirPath,
+        })
+      );
+    } catch (err) {
+      console.error(err);
+    }
   }
 
   async function addFilesToProject() {
     try {
       const openFileDialogRes = await openFileOpenDialog();
       const cpRes = await copyFiles({
-        dest: projectWorkDirPath,
+        dest: path.join(projectWorkDirPath, PROJECT_FOLDER_STUCTURE.images),
         files: openFileDialogRes.filePaths,
       });
+
+      cpRes?.newFilesPaths.forEach((fp) =>
+        imageToProjectStructure(path.relative(projectWorkDirPath, fp))
+      );
+
       dispatch(scanForImagesInDirThunk({ dpath: projectWorkDirPath }));
       console.log(openFileDialogRes, projectWorkDirPath, cpRes);
     } catch (err) {
       console.error(err);
     }
-
-    // openFileOpenDialog();
-    //   .then((res: Electron.OpenDialogReturnValue) => {
-    //     if (res.canceled) {
-    //       throw new Error("canceled");
-    //     }
-    //     const cpRes = copyFiles({
-    //       dest: projectWorkDirPath,
-    //       files: res.filePaths,
-    //     }).catch((err) => console.error(err));
-    //     console.log(res, projectWorkDirPath, cpRes);
-    //   })
-    //   .catch((err) => console.error(err));
   }
 
   async function openProjectFile() {
@@ -97,7 +108,22 @@ export function ProjectHeader() {
       dispatch(
         scanForImagesInDirThunk({ dpath: path.dirname(projectFilePath) })
       );
-      dispatch(setProjectWorkDirPath(projectFilePath));
+      dispatch(setProjectWorkDirPath(path.dirname(projectFilePath)));
+      const fileReadRes = await readFile({ fpath: projectFilePath });
+      const fileData = fileReadRes.data;
+      if (!fileData) {
+        throw new Error("no file data");
+      }
+
+      const project = JSON.parse(fileData);
+
+      if (!ProjectDataTypeGuard(project)) {
+        throw new Error("typeguard failed");
+      }
+
+      //   dispatch(setProjectItems(project.items));
+      dispatch(setProject(project));
+      //   dispatch(setProjec)
     } catch (err) {
       console.error(err);
     }
