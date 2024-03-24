@@ -1,5 +1,6 @@
 import { dialog } from "electron";
 import path from "path";
+import { DREE_IMAGE_OPTIONS } from "../../../app/constants";
 
 /* eslint-disable @typescript-eslint/no-var-requires */
 // export type HandleOpenFileDialogPayload = {

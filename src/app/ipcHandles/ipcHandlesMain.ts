@@ -7,6 +7,7 @@ import { handleDirCreate } from "./handleFunctions/createDirHandle";
 import { handleOpenFileDialog } from "./handleFunctions/openFileDialogHandle";
 import { handleCopyFiles } from "./handleFunctions/copyFilesHandle";
 import { handleScanDirForImages } from "./handleFunctions/scanDirForImagesHandle";
+import { handleOpenProjectDialog } from "./handleFunctions/openProjectDialogHandle";
 
 export type CreateDirHandlePayload = {
   path: string;
@@ -66,4 +67,5 @@ export function ipcHandlersMain() {
   ipcMain.handle(IPC_HANDLES.CREATE_DIR, handleDirCreate);
   ipcMain.handle(IPC_HANDLES.COPY_FILES, handleCopyFiles);
   ipcMain.handle(IPC_HANDLES.SCAN_DIR_FOR_IMAGES, handleScanDirForImages);
+  ipcMain.handle(IPC_HANDLES.OPEN_PROJECT_DIALOG, handleOpenProjectDialog);
 }

@@ -6,6 +6,7 @@ export enum IPC_HANDLES {
   CREATE_DIR = "create-dir",
   COPY_FILES = "copy-files",
   SCAN_DIR_FOR_IMAGES = "scan-dir-for-images",
+  OPEN_PROJECT_DIALOG = "open-project-dialog",
   // === old ones
   FILE_OPEN_DIALOG = "file-dialog",
   DISPLAY_IMAGE = "image-display",

@@ -12,8 +12,10 @@ import {
   createFileByPath,
   openFileOpenDialog,
   copyFiles,
+  openProjectOpenDialog,
 } from "../slice/api";
 import { selectProjectPath, setProjectWorkDirPath } from "../slice/slice";
+const path = window.require("path");
 
 const { Text } = Typography;
 
@@ -82,18 +84,38 @@ export function ProjectHeader() {
     //   .catch((err) => console.error(err));
   }
 
+  async function openProjectFile() {
+    try {
+      const openProjectDialogRes = await openProjectOpenDialog();
+      if (openProjectDialogRes.canceled) {
+        throw new Error("canceled");
+      }
+
+      const projectFilePath = openProjectDialogRes.filePaths[0];
+      //   path.dirname(projectFilePath);
+
+      dispatch(
+        scanForImagesInDirThunk({ dpath: path.dirname(projectFilePath) })
+      );
+      dispatch(setProjectWorkDirPath(projectFilePath));
+    } catch (err) {
+      console.error(err);
+    }
+  }
+
   const items: MenuProps["items"] = [
     {
       key: "0",
       label: "создать новый проект",
       onClick: () => {
-        createProject("test");
+        createProject("new-project");
       },
     },
     {
       key: "1",
       label: "открыть проект",
       onClick: () => {
+        openProjectFile();
         //open project test
       },
     },

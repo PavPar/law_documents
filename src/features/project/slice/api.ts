@@ -58,3 +58,7 @@ export function scanForImagesInDir(payload: HandleScanDirForImagesPayload) {
     payload
   ) as Promise<HandleScanDirForImagesResult>;
 }
+
+export function openProjectOpenDialog(): Promise<Electron.OpenDialogReturnValue> {
+  return ipcRenderer.invoke(IPC_HANDLES.OPEN_PROJECT_DIALOG);
+}

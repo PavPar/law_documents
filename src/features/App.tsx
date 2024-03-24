@@ -3,6 +3,5 @@ import { Files } from "./files/Files";
 import { Project } from "./project/Project";
 
 export function App() {
-  // return <Files />;
   return <Project />;
 }

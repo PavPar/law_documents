@@ -1,43 +1,20 @@
-import React, { useEffect, useState } from "react";
-import {
-  Button,
-  Layout,
-  Menu,
-  Spin,
-  Tree,
-  TreeDataNode,
-  Typography,
-} from "antd";
+import { useEffect, useState } from "react";
+import { Layout, Tree, Typography } from "antd";
 const { Header, Footer, Sider, Content } = Layout;
 import { css } from "@emotion/css";
 import { useAppDispatch, useAppSelector } from "../../app/store";
 // import { uuid } from "uuidv4";
 import {
-  ProductItemType,
-  createProductTreeNode,
   selectData,
   selectDisplayImageStatus,
   selectFiles,
   selectProjectPath,
   selectProjectStructure,
   selectStatus,
-  setProjectWorkDirPath,
 } from "./slice/slice";
-import {
-  displayImageByPathThunk,
-  getDirectoryTreeThunk,
-  openFileDialogThunk,
-  scanForImagesInDirThunk,
-} from "./slice/thunks";
+import { displayImageByPathThunk } from "./slice/thunks";
 import { TransformComponent, TransformWrapper } from "react-zoom-pan-pinch";
 import { TreeNode, useTreeNodeStructure } from "./hooks/useTreeNodeStructure";
-import {
-  copyFiles,
-  createDirByPath,
-  createFileByPath,
-  openDirDialog,
-  openFileOpenDialog,
-} from "./slice/api";
 import { ProjectHeader } from "./components/ProjectHeader";
 // import { Type } from "dree";
 // eslint-disable-next-line @typescript-eslint/no-var-requires
@@ -121,7 +98,7 @@ export function Project() {
           <Layout>
             <Content>
               {imageData ? (
-                <TransformWrapper>
+                <TransformWrapper limitToBounds={false}>
                   <TransformComponent>
                     <img
                       className={css`
