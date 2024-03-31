@@ -17,6 +17,7 @@ import {
   writeFile,
 } from "../slice/api";
 import {
+  addItemsToProject,
   selectProjectData,
   selectProjectPath,
   selectProjectRootFilePath,
@@ -32,6 +33,7 @@ import {
 } from "../../../app/constants";
 import { imageToProjectStructure } from "../utils/projectStructureMethods";
 import { ProjectDataTypeGuard } from "../utils/projectDataTypeGuard";
+import { ProjectItem } from "../slice/types";
 
 const path = window.require("path");
 
@@ -98,11 +100,16 @@ export function ProjectHeader() {
         files: openFileDialogRes.filePaths,
       });
 
+      const items: ProjectItem[] = [];
       cpRes?.newFilesPaths.forEach((fp) =>
-        imageToProjectStructure(path.relative(projectWorkDirPath, fp))
+        items.push(
+          imageToProjectStructure(path.relative(projectWorkDirPath, fp))
+        )
       );
-
+      // TODO: if item was added and project not saved, the file will exist in folder but not in index file
+      dispatch(addItemsToProject(items));
       dispatch(scanForImagesInDirThunk({ dpath: projectWorkDirPath }));
+
       console.log(openFileDialogRes, projectWorkDirPath, cpRes);
     } catch (err) {
       console.error(err);

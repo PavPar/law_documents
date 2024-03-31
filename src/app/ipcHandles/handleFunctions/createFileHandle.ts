@@ -14,6 +14,7 @@ export async function handleCreateFile(
   payload: HandleCreateFilePayload
 ) {
   const { name, fpath, content } = payload;
+
   try {
     fs.appendFile(
       path.join(fpath, name),
