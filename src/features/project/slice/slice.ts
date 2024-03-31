@@ -18,6 +18,7 @@ export enum ProductItemType {
 
 type State = {
   projectWorkDirPath?: string;
+  projectRootFilePath?: string;
   project?: ProjectData;
   //delete later
   files?: Dree;
@@ -67,6 +68,12 @@ export const projectSlice = createSlice({
       action: PayloadAction<ProjectData["items"]>
     ) => {
       state.project.items = action.payload;
+    },
+    setProjectRootFilePath: (
+      state: State,
+      action: PayloadAction<State["projectRootFilePath"]>
+    ) => {
+      state.projectRootFilePath = action.payload;
     },
     removeItemsFromProject: (
       state: State,
@@ -134,6 +141,7 @@ export const {
   removeItemsFromProject,
   setProjectItems,
   setProjectName,
+  setProjectRootFilePath,
   setProject,
 } = projectSlice.actions;
 
@@ -146,5 +154,7 @@ export const selectDisplayImageStatus = (state: RootState) =>
 export const selectData = (state: RootState) => state.project.data;
 
 export const selectProjectData = (state: RootState) => state.project.project;
+export const selectProjectRootFilePath = (state: RootState) =>
+  state.project.projectRootFilePath;
 
 export default projectSlice.reducer;

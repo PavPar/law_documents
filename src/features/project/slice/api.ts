@@ -14,8 +14,14 @@ import {
   HandleScanDirForImagesPayload,
   HandleScanDirForImagesResult,
 } from "../../../app/ipcHandles/handleFunctions/scanDirForImagesHandle";
-import { HandleFileReadPayload } from "../../../app/ipcHandles/handleFunctions/readFileHandle";
-import { HandleFileReadResult } from "../../../app/ipcHandles/handleFunctions/readFileHandle";
+import {
+  HandleFileReadPayload,
+  HandleFileReadResult,
+} from "../../../app/ipcHandles/handleFunctions/readFileHandle";
+import {
+  HandleFileWritePayload,
+  HandleFileWriteResult,
+} from "../../../app/ipcHandles/handleFunctions/writeFileHandle";
 
 // import { ipcRenderer } from "electron";
 const { ipcRenderer } = window.require("electron");
@@ -70,4 +76,11 @@ export function readFile(payload: HandleFileReadPayload) {
     IPC_HANDLES.FILE_READ,
     payload
   ) as Promise<HandleFileReadResult>;
+}
+
+export function writeFile(payload: HandleFileWritePayload) {
+  return ipcRenderer.invoke(
+    IPC_HANDLES.FILE_WRITE,
+    payload
+  ) as Promise<HandleFileWriteResult>;
 }

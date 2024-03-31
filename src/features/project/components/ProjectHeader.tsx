@@ -14,12 +14,16 @@ import {
   copyFiles,
   openProjectOpenDialog,
   readFile,
+  writeFile,
 } from "../slice/api";
 import {
+  selectProjectData,
   selectProjectPath,
+  selectProjectRootFilePath,
   setProject,
   setProjectItems,
   setProjectName,
+  setProjectRootFilePath,
   setProjectWorkDirPath,
 } from "../slice/slice";
 import {
@@ -28,6 +32,7 @@ import {
 } from "../../../app/constants";
 import { imageToProjectStructure } from "../utils/projectStructureMethods";
 import { ProjectDataTypeGuard } from "../utils/projectDataTypeGuard";
+
 const path = window.require("path");
 
 const { Text } = Typography;
@@ -35,6 +40,8 @@ const { Text } = Typography;
 export function ProjectHeader() {
   const dispatch = useAppDispatch();
   const projectWorkDirPath = useAppSelector(selectProjectPath);
+  const projectRootFilePath = useAppSelector(selectProjectRootFilePath);
+  const projectData = useAppSelector(selectProjectData);
 
   async function createProject(projectName: string) {
     try {
@@ -59,8 +66,10 @@ export function ProjectHeader() {
         },
       });
       dispatch(setProjectWorkDirPath(createDirRes.dirPath));
+
       const projectFileData = Object.assign({}, PROJECT_FILE_INITAL_STATE);
       projectFileData.name = projectName;
+
       await createFileByPath({
         fpath: createDirRes.dirPath,
         name: `${projectName}.json`,
@@ -70,6 +79,11 @@ export function ProjectHeader() {
         scanForImagesInDirThunk({
           dpath: createDirRes.dirPath,
         })
+      );
+      dispatch(
+        setProjectRootFilePath(
+          path.join(createDirRes.dirPath, `${projectName}.json`)
+        )
       );
     } catch (err) {
       console.error(err);
@@ -123,7 +137,19 @@ export function ProjectHeader() {
 
       //   dispatch(setProjectItems(project.items));
       dispatch(setProject(project));
+      dispatch(setProjectRootFilePath(projectFilePath));
       //   dispatch(setProjec)
+    } catch (err) {
+      console.error(err);
+    }
+  }
+
+  async function saveProject() {
+    try {
+      await writeFile({
+        fpath: path.join(projectRootFilePath),
+        content: JSON.stringify(projectData),
+      });
     } catch (err) {
       console.error(err);
     }
@@ -131,14 +157,14 @@ export function ProjectHeader() {
 
   const items: MenuProps["items"] = [
     {
-      key: "0",
+      key: "project-create",
       label: "создать новый проект",
       onClick: () => {
         createProject("new-project");
       },
     },
     {
-      key: "1",
+      key: "project-open",
       label: "открыть проект",
       onClick: () => {
         openProjectFile();
@@ -146,17 +172,24 @@ export function ProjectHeader() {
       },
     },
     {
-      key: "2",
+      key: "project-addfiles",
       label: "добавить файлы в проект",
       onClick: () => {
         addFilesToProject();
       },
     },
     {
+      key: "project-write",
+      label: "Сохранить",
+      onClick: () => {
+        saveProject();
+      },
+    },
+    {
       type: "divider",
     },
     {
-      key: "3",
+      key: "dir-read",
       label: "открыть папку с файлами",
 
       onClick: () => {
