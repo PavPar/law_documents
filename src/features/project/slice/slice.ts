@@ -37,6 +37,12 @@ const initialState: State = {
 };
 
 type SetRootDirPayload = State["projectWorkDirPath"];
+type SetItemParentPayload = {
+  uid: ProjectItem["uid"];
+  parentUID?: ProjectItem["uid"];
+};
+type SetProjectItemDataPayload = Omit<Partial<ProjectItem>, "uid"> &
+  Pick<ProjectItem, "uid">;
 
 export const projectSlice = createSlice({
   name: "project",
@@ -63,11 +69,33 @@ export const projectSlice = createSlice({
     ) => {
       state.project.items = [...state.project.items, ...action.payload];
     },
+    setProjectItemData: (
+      state: State,
+      action: PayloadAction<SetProjectItemDataPayload>
+    ) => {
+      const { uid, ...data } = action.payload;
+      const item = state.project.items.find((i) => i.uid === uid);
+      Object.keys(data).forEach((key: keyof ProjectItem) => {
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        //@ts-ignore
+        item[key] = data[key];
+      });
+    },
     setProjectItems: (
       state: State,
       action: PayloadAction<ProjectData["items"]>
     ) => {
       state.project.items = action.payload;
+    },
+    setItemParent: (
+      state: State,
+      action: PayloadAction<SetItemParentPayload>
+    ) => {
+      const { parentUID, uid } = action.payload;
+      const item = state.project.items.find((i) => i.uid === uid);
+      if (item) {
+        item.parent_uid = parentUID;
+      }
     },
     setProjectRootFilePath: (
       state: State,
@@ -143,6 +171,8 @@ export const {
   setProjectName,
   setProjectRootFilePath,
   setProject,
+  setItemParent,
+  setProjectItemData,
 } = projectSlice.actions;
 
 export const selectProjectPath = (state: RootState) =>
