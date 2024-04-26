@@ -105,9 +105,14 @@ export function ProjectHeader() {
       });
 
       const items: ProjectItem[] = [];
+      const map = cpRes?.newFileNamesMap || {};
       cpRes?.newFilesPaths.forEach((fp) =>
         items.push(
-          imageToProjectStructure(path.relative(projectWorkDirPath, fp))
+          imageToProjectStructure({
+            relativePath: path.relative(projectWorkDirPath, fp),
+            name: map[path.basename(fp)],
+            uid: path.parse(fp).name,
+          })
         )
       );
       // TODO: if item was added and project not saved, the file will exist in folder but not in index file
