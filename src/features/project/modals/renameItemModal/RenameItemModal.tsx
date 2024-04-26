@@ -3,18 +3,22 @@ import {
   RenameItemModalBody,
   RenameItemModalBodyProps,
 } from "./components/RenameItemModalBody";
+import { ProjectItem } from "../../slice/types";
 
-export type RenameItemModalProps = ModalProps & {
-  onFinish: RenameItemModalBodyProps["onFinish"];
-};
+export type RenameItemModalProps = ModalProps & RenameItemModalBodyProps;
 
-export function RenameItemModal({ onFinish, ...props }: RenameItemModalProps) {
+export function RenameItemModal({
+  onFinish,
+  item,
+  ...props
+}: RenameItemModalProps) {
   return (
     <Modal
       {...props}
       title={"Переименовать элемент"}
       centered
       cancelText={"Отменить"}
+      destroyOnClose
       footer={[
         <Button
           form="renameItemForm"
@@ -26,7 +30,7 @@ export function RenameItemModal({ onFinish, ...props }: RenameItemModalProps) {
         </Button>,
       ]}
     >
-      <RenameItemModalBody onFinish={onFinish} />
+      <RenameItemModalBody onFinish={onFinish} item={item} />
     </Modal>
   );
 }

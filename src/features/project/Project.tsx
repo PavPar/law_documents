@@ -144,6 +144,7 @@ export function Project() {
         }}
       />
       <RenameItemModal
+        item={contextMenuTargetNode?.data}
         open={isRenameItemModalVisible}
         onCancel={() => setRenameItemModalVisible(false)}
         // onOk={() => setGroupCreationModalVisible(false)}
