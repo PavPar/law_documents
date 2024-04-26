@@ -34,6 +34,8 @@ import {
 import { imageToProjectStructure } from "../utils/projectStructureMethods";
 import { ProjectDataTypeGuard } from "../utils/projectDataTypeGuard";
 import { ProjectItem } from "../slice/types";
+import { useState } from "react";
+import { CreateProjectModal } from "../modals/createProjectModal/CreateProjectModal";
 
 const path = window.require("path");
 
@@ -44,6 +46,8 @@ export function ProjectHeader() {
   const projectWorkDirPath = useAppSelector(selectProjectPath);
   const projectRootFilePath = useAppSelector(selectProjectRootFilePath);
   const projectData = useAppSelector(selectProjectData);
+  const [isCreateProjectModalVisible, setCreateProjectModalVisible] =
+    useState(false);
 
   async function createProject(projectName: string) {
     try {
@@ -167,7 +171,8 @@ export function ProjectHeader() {
       key: "project-create",
       label: "создать новый проект",
       onClick: () => {
-        createProject("new-project");
+        // createProject("new-project");
+        setCreateProjectModalVisible(true);
       },
     },
     {
@@ -187,7 +192,7 @@ export function ProjectHeader() {
     },
     {
       key: "project-write",
-      label: "Сохранить",
+      label: "сохранить",
       onClick: () => {
         saveProject();
       },
@@ -206,23 +211,24 @@ export function ProjectHeader() {
   ];
 
   return (
-    <Header
-      className={css`
-        display: grid;
-        grid-template-columns: 25% auto;
-        grid-auto-flow: column;
-        padding: 0;
-        background-color: #dcdcdc;
-        border-bottom: 1px black solid;
-      `}
-    >
-      <div
+    <>
+      <CreateProjectModal
+        open={isCreateProjectModalVisible}
+        onCancel={() => setCreateProjectModalVisible(false)}
+        // onOk={() => setGroupCreationModalVisible(false)}
+        onFinish={(values) => {
+          setCreateProjectModalVisible(false);
+          createProject(values.name);
+        }}
+      />
+      <Header
         className={css`
-          display: flex;
-          justify-content: center;
-          align-items: center;
-          padding: 5px;
-          box-sizing: border-box;
+          display: grid;
+          grid-template-columns: 25% auto;
+          grid-auto-flow: column;
+          padding: 0;
+          background-color: #dcdcdc;
+          border-bottom: 1px black solid;
         `}
       >
         <div
@@ -230,22 +236,32 @@ export function ProjectHeader() {
             display: flex;
             justify-content: center;
             align-items: center;
-            background-color: black;
-            border-radius: 5px;
-            color: white;
-            font-weight: bold;
-            width: 100%;
-            height: 3em;
+            padding: 5px;
+            box-sizing: border-box;
           `}
         >
-          <span>ОРГАНАЙЗЕР ДЕЛ</span>
+          <div
+            className={css`
+              display: flex;
+              justify-content: center;
+              align-items: center;
+              background-color: black;
+              border-radius: 5px;
+              color: white;
+              font-weight: bold;
+              width: 100%;
+              height: 3em;
+            `}
+          >
+            <span>ОРГАНАЙЗЕР ДЕЛ</span>
+          </div>
         </div>
-      </div>
-      <div>
-        <Dropdown menu={{ items }} trigger={["click"]}>
-          <Button>Проект</Button>
-        </Dropdown>
-      </div>
-    </Header>
+        <div>
+          <Dropdown menu={{ items }} trigger={["click"]}>
+            <Button>Проект</Button>
+          </Dropdown>
+        </div>
+      </Header>
+    </>
   );
 }

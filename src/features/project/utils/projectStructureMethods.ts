@@ -1,10 +1,10 @@
 import { Dree } from "dree";
-import { ProjectData, ProjectItem } from "../slice/types";
+import { ProjectData, ProjectItem, ProjectItemTypes } from "../slice/types";
 
 import { v4 as uuidv4 } from "uuid";
-
-import { TreeNodeNormal } from "antd/es/tree/Tree";
-import { TreeDataNode } from "antd";
+import { TreeNode } from "primereact/treenode";
+import { Project } from "../Project";
+import { ProductItemType } from "../slice/slice";
 
 const path = window.require("path");
 const dree = window.require("dree");
@@ -45,7 +45,18 @@ export function imageToProjectStructure(relativePath: string): ProjectItem {
   };
 }
 
-export type ProjectTreeDataNode = TreeDataNode & { data?: ProjectItem };
+export type ProjectTreeDataNode = TreeNode & { data?: ProjectItem };
+
+function getIcon(type: ProjectItemTypes) {
+  switch (type) {
+    case "root":
+      return "";
+    case "group":
+      return "pi pi-folder";
+    case "image":
+      return "pi pi-image";
+  }
+}
 
 function createTreeNode(
   //   props: TreeNode,
@@ -62,14 +73,15 @@ function createTreeNode(
   const key = parentKey ? `${parentKey}-${childIndex}` : `${childIndex}`;
   return {
     key,
-    title: data?.name,
+    label: data?.name,
     data,
-    isLeaf: data?.type === "image",
+    leaf: data?.type === "image",
+    icon: getIcon(data.type),
     // children: node.children?.map((child, index) =>
     //   handleChildAdd(child, index, key)
     // ),
     // data: props,
-  } as ProjectTreeDataNode;
+  };
 }
 
 type ParentUIDChildItemMap = {
@@ -148,7 +160,11 @@ export function getRootNodeChildren(
 export function getProjectTreeData(projectData: ProjectData) {
   const rootNode: ProjectTreeDataNode = {
     key: "0",
-    title: projectData.name,
+    label: projectData.name,
+    data: {
+      type: ProductItemType.root as unknown as ProjectItem["type"],
+      uid: "root",
+    },
   };
 
   rootNode.children = getRootNodeChildren(rootNode, projectData.items);

@@ -1,5 +1,5 @@
 // basic image item
-export type ProjectItemTypes = "group" | "image";
+export type ProjectItemTypes = "group" | "image" | "root";
 
 export type ProjectItem = {
   uid: string;

@@ -12,8 +12,9 @@ import { Dree } from "dree";
 import { ProjectData, ProjectItem } from "./types";
 
 export enum ProductItemType {
-  file = "FILE",
-  group = "GROUP",
+  file = "file",
+  group = "group",
+  root = "root",
 }
 
 type State = {
@@ -109,7 +110,7 @@ export const projectSlice = createSlice({
     ) => {
       const itemSet = new Set(action.payload);
       state.project.items = state.project.items.filter(
-        (i) => !itemSet.has(i.uid)
+        (i) => !(itemSet.has(i.uid) || itemSet.has(i?.parent_uid))
       );
     },
   },

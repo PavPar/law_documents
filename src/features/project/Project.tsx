@@ -1,5 +1,5 @@
 import { ReactNode, useEffect, useRef, useState } from "react";
-import { Button, Dropdown, Layout, Tree, Typography } from "antd";
+import { Button, Dropdown, Layout, Typography } from "antd";
 const { Header, Footer, Sider, Content } = Layout;
 import { css } from "@emotion/css";
 import { useAppDispatch, useAppSelector } from "../../app/store";
@@ -29,6 +29,9 @@ import { ContextMenu } from "primereact/contextmenu";
 // eslint-disable-next-line import/no-unresolved
 import { MenuItem, MenuItemOptions } from "primereact/menuitem";
 import { GroupCreationModal } from "./modals/groupCreationModal/GroupCreationModal";
+import { MoveToGroupModal } from "./modals/moveToGroupModal/MoveToGroupModal";
+import { RenameItemModal } from "./modals/renameItemModal/RenameItemModal";
+import { Tree } from "primereact/tree";
 
 // import { Type } from "dree";
 // eslint-disable-next-line @typescript-eslint/no-var-requires
@@ -52,6 +55,10 @@ export function Project() {
   const [treeData, setTreeData] = useState<ProjectTreeDataNode>();
   const [isGroupCreationModalVisible, setGroupCreationModalVisible] =
     useState(false);
+  const [isMoveToGroupModalVisible, setMoveToGroupModalVisible] =
+    useState(false);
+  const [isRenameItemModalVisible, setRenameItemModalVisible] = useState(false);
+
   useEffect(() => {
     if (files) {
       //   setTreeData(useTreeNodeStructure(files));
@@ -77,12 +84,7 @@ export function Project() {
     {
       label: "Переименовать",
       command: () => {
-        dispatch(
-          setProjectItemData({
-            uid: contextMenuTargetNode.data.uid,
-            name: "test",
-          })
-        );
+        setRenameItemModalVisible(true);
       },
     },
     {
@@ -94,12 +96,7 @@ export function Project() {
     {
       label: "Переместить в группу",
       command: () => {
-        dispatch(
-          setItemParent({
-            uid: contextMenuTargetNode?.data?.uid,
-            parentUID: "test",
-          })
-        );
+        setMoveToGroupModalVisible(true);
       },
     },
     {
@@ -131,14 +128,45 @@ export function Project() {
           dispatch(addItemsToProject([{ type: "group", uid: uuidv4(), name }]));
         }}
       />
+      <MoveToGroupModal
+        open={isMoveToGroupModalVisible}
+        onCancel={() => setMoveToGroupModalVisible(false)}
+        // onOk={() => setGroupCreationModalVisible(false)}
+        onFinish={(values) => {
+          setMoveToGroupModalVisible(false);
+          console.log(values);
+          dispatch(
+            setItemParent({
+              uid: contextMenuTargetNode.data.uid,
+              parentUID: values?.group,
+            })
+          );
+        }}
+      />
+      <RenameItemModal
+        open={isRenameItemModalVisible}
+        onCancel={() => setRenameItemModalVisible(false)}
+        // onOk={() => setGroupCreationModalVisible(false)}
+        onFinish={(values) => {
+          setRenameItemModalVisible(false);
+          console.log(values);
+          dispatch(
+            setProjectItemData({
+              uid: contextMenuTargetNode.data.uid,
+              name: values.name,
+            })
+          );
+        }}
+      />
       <Layout>
         <ProjectHeader />
         <Layout>
           <Sider
-            width="25%"
+            width="35%"
             className={css`
               background-color: #dcdcdc !important;
               border-right: 1px black solid;
+              overflow: scroll;
             `}
           >
             <Button
@@ -165,11 +193,22 @@ export function Project() {
 
               {treeData && (
                 <Tree
-                  showLine
-                  showIcon
-                  defaultExpandedKeys={["0"]}
-                  onClick={(e, node) => {
+                  style={{ padding: 0 }}
+                  expandedKeys={Object.assign(
+                    {
+                      "0": true,
+                    },
+                    ...treeData.children.map((c) => ({ [c.key]: true }))
+                  )}
+                  filter
+                  selectionMode="multiple"
+                  filterMode="lenient"
+                  onNodeClick={({ node }) => {
+                    console.log("clicked", node);
                     if (node.data.type === "group") {
+                      return;
+                    }
+                    if (node.data.type === "root") {
                       return;
                     }
                     dispatch(
@@ -178,10 +217,32 @@ export function Project() {
                       )
                     );
                   }}
-                  treeData={[treeData]}
-                  onRightClick={({ event, node }) => {
+                  value={[treeData]}
+                  onContextMenu={({ node }) => {
+                    if (node.data?.type === "root") {
+                      return;
+                    }
                     contextMenuRef.current.show(event);
                     setContextMenuTargetNode(node);
+                  }}
+                  dragdropScope="demo"
+                  onDragDrop={({ dragNode, dropNode }) => {
+                    if (!dropNode || !dropNode.data) {
+                      return;
+                    }
+                    if (dropNode.data.type === "image") {
+                      return;
+                    }
+                    if (dropNode.data.type === "root") {
+                      return;
+                    }
+
+                    dispatch(
+                      setItemParent({
+                        uid: dragNode.data.uid,
+                        parentUID: dropNode.data.uid,
+                      })
+                    );
                   }}
                 />
               )}

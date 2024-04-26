@@ -19,7 +19,7 @@ export function GroupCreationModal({
       centered
       cancelText={"Отменить"}
       footer={[
-        <Button form="groupForm" key="submit" htmlType="submit">
+        <Button form="groupForm" key="submit" htmlType="submit" type="primary">
           Создать
         </Button>,
       ]}
