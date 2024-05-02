@@ -3,6 +3,7 @@ import {
   GroupCreationModalBody,
   GroupCreationModalBodyProps,
 } from "./components/GroupCreationModalBody";
+import React from "react";
 
 export type GroupCreationModalProps = ModalProps & {
   onFinish: GroupCreationModalBodyProps["onFinish"];
