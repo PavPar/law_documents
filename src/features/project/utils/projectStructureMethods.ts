@@ -36,12 +36,20 @@ export function filesToProjectStructure(root: Dree) {
   return items;
 }
 
-export function imageToProjectStructure(relativePath: string): ProjectItem {
+export function imageToProjectStructure({
+  relativePath,
+  uid,
+  name,
+}: {
+  relativePath: string;
+  name?: string;
+  uid?: string;
+}): ProjectItem {
   return {
-    uid: uuidv4(),
+    uid: uid || uuidv4(),
     type: "image",
     path: relativePath,
-    name: path.basename(relativePath),
+    name: name || path.basename(relativePath),
   };
 }
 

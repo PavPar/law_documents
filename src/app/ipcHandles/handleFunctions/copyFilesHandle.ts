@@ -1,5 +1,6 @@
 import path from "path";
 import { promisify } from "util";
+import { v4 as uuidv4 } from "uuid";
 
 /* eslint-disable @typescript-eslint/no-var-requires */
 export type HandleCopyFilesPayload = {
@@ -12,6 +13,7 @@ export type HandleCopyFilesResult = {
   success: boolean;
   dest: string;
   newFilesPaths?: string[];
+  newFileNamesMap?: { [uid: string]: string };
 };
 
 const fs = require("fs");
@@ -25,10 +27,13 @@ export async function handleCopyFiles(
 
   let status = true;
   const newFilesPaths: string[] = [];
-
+  const newFileNamesMap: HandleCopyFilesResult["newFileNamesMap"] = {};
   Promise.all(
     files.map((f) => {
-      const newFilePath = path.join(dest, path.basename(f));
+      const newName = uuidv4() + path.extname(f);
+      const originalName = path.basename(f);
+      const newFilePath = path.join(dest, newName);
+      newFileNamesMap[newName] = originalName;
       newFilesPaths.push(newFilePath);
       return copyFilePromise(
         f,
@@ -62,6 +67,7 @@ export async function handleCopyFiles(
       payload,
       success: status,
       newFilesPaths,
+      newFileNamesMap,
     } as HandleCopyFilesResult);
   });
 }
