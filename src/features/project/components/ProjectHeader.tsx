@@ -36,6 +36,8 @@ import { ProjectDataTypeGuard } from "../utils/projectDataTypeGuard";
 import { ProjectItem } from "../slice/types";
 import { useState } from "react";
 import { CreateProjectModal } from "../modals/createProjectModal/CreateProjectModal";
+import { useNavigate } from "react-router";
+import { APP_PAGES_PATHS } from "../../App";
 
 const path = window.require("path");
 
@@ -43,6 +45,7 @@ const { Text } = Typography;
 
 export function ProjectHeader() {
   const dispatch = useAppDispatch();
+  const navigate = useNavigate();
   const projectWorkDirPath = useAppSelector(selectProjectPath);
   const projectRootFilePath = useAppSelector(selectProjectRootFilePath);
   const projectData = useAppSelector(selectProjectData);
@@ -253,7 +256,13 @@ export function ProjectHeader() {
               height: 3em;
             `}
           >
-            <span>ОРГАНАЙЗЕР ДЕЛ</span>
+            <span
+              onClick={() => {
+                navigate(APP_PAGES_PATHS.main);
+              }}
+            >
+              ОРГАНАЙЗЕР ДЕЛ
+            </span>
           </div>
         </div>
         <div>
