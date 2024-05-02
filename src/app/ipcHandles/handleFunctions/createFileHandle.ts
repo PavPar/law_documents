@@ -7,23 +7,23 @@ export type HandleCreateFilePayload = {
   content?: string;
 };
 
+export type HandleCreateFileResult = {
+  fpath?: string;
+};
+
 const fs = require("fs");
 
 export async function handleCreateFile(
   event: Electron.IpcMainInvokeEvent,
   payload: HandleCreateFilePayload
-) {
+): Promise<HandleCreateFileResult> {
   const { name, fpath, content } = payload;
-
+  const filePath = path.join(fpath, name);
   try {
-    fs.appendFile(
-      path.join(fpath, name),
-      content || "",
-      function (err: unknown) {
-        if (err) throw err;
-      }
-    );
-    return;
+    fs.appendFile(filePath, content || "", function (err: unknown) {
+      if (err) throw err;
+    });
+    return { fpath: filePath };
   } catch (err) {
     console.error(err);
     return err;

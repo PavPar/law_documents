@@ -2,6 +2,10 @@ import type { Configuration } from "webpack";
 
 import { rules } from "./webpack.rules";
 import { plugins } from "./webpack.plugins";
+const { cwd } = require("node:process");
+const { resolve } = require("node:path");
+
+const TsconfigPathsWebpackPlugin = require("tsconfig-paths-webpack-plugin");
 
 rules.push({
   test: /\.css$/,
@@ -19,5 +23,10 @@ export const rendererConfig: Configuration = {
   plugins,
   resolve: {
     extensions: [".js", ".ts", ".jsx", ".tsx", ".css", ".svg"],
+    plugins: [
+      new TsconfigPathsWebpackPlugin({
+        configFile: resolve(cwd(), "./tsconfig.json"),
+      }),
+    ],
   },
 };

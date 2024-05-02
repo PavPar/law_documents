@@ -5,11 +5,13 @@ import { APP_PAGES_PATHS } from "../App";
 import { Logo, LOGO_SIZE } from "./components/Logo";
 import { OWL_LOGO_SIZE, OwlLogo } from "./components/OwlLogo";
 import { FileAddOutlined, FolderOpenOutlined } from "@ant-design/icons";
+import { useProjectActions } from "../project/hooks/useProjectActions";
 
 const { Text, Title } = Typography;
 
 export function MainPage() {
   const navigate = useNavigate();
+  const { createProject, openProject } = useProjectActions();
   return (
     <Layout
       className={css({
@@ -64,6 +66,11 @@ export function MainPage() {
               height: 100%;
             `}
             icon={<FileAddOutlined />}
+            onClick={() => {
+              createProject("test")
+                .then(() => navigate(APP_PAGES_PATHS.project))
+                .catch((err) => console.error(err));
+            }}
           >
             Создать дело
           </Button>
@@ -72,8 +79,12 @@ export function MainPage() {
               width: 100%;
               height: 100%;
             `}
-            onClick={() => navigate(APP_PAGES_PATHS.project)}
             icon={<FolderOpenOutlined />}
+            onClick={() => {
+              openProject()
+                .then(() => navigate(APP_PAGES_PATHS.project))
+                .catch((err) => console.error(err));
+            }}
           >
             Открыть существующее дело
           </Button>

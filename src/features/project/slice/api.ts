@@ -4,7 +4,10 @@ import {
   HandleCreateDirPayload,
   HandleCreateDirReturnVal,
 } from "../../../app/ipcHandles/handleFunctions/createDirHandle";
-import { HandleCreateFilePayload } from "../../../app/ipcHandles/handleFunctions/createFileHandle";
+import {
+  HandleCreateFilePayload,
+  HandleCreateFileResult,
+} from "../../../app/ipcHandles/handleFunctions/createFileHandle";
 import { HandleOpenFileDialogResult } from "../../../app/ipcHandles/handleFunctions/openFileDialogHandle";
 import {
   HandleCopyFilesPayload,
@@ -38,7 +41,9 @@ export function displayImageByPath(path: string): Promise<string> {
   return ipcRenderer.invoke(IPC_HANDLES.DISPLAY_IMAGE_DATA_BY_PATH, path);
 }
 
-export function createFileByPath(payload: HandleCreateFilePayload) {
+export function createFileByPath(
+  payload: HandleCreateFilePayload
+): Promise<HandleCreateFileResult> {
   return ipcRenderer.invoke(IPC_HANDLES.CREATE_FILE, payload);
 }
 

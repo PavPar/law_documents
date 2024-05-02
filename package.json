@@ -51,6 +51,7 @@
     "antd": "^5.14.1",
     "dree": "^4.7.0",
     "electron-squirrel-startup": "^1.0.0",
+    "eslint-import-resolver-typescript": "^3.6.1",
     "file-loader": "^6.2.0",
     "fs": "^0.0.1-security",
     "normalize.css": "^8.0.1",
@@ -64,6 +65,7 @@
     "react-zoom-pan-pinch": "^3.4.3",
     "redux-logger": "^3.0.6",
     "tesseract.js": "^5.0.4",
+    "tsconfig-paths-webpack-plugin": "^4.1.0",
     "uuid": "^9.0.1"
   }
 }

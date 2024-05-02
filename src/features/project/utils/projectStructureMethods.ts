@@ -2,9 +2,15 @@ import { Dree } from "dree";
 import { ProjectData, ProjectItem, ProjectItemTypes } from "../slice/types";
 
 import { v4 as uuidv4 } from "uuid";
+// eslint-disable-next-line import/no-unresolved
 import { TreeNode } from "primereact/treenode";
 import { Project } from "../Project";
 import { ProductItemType } from "../slice/slice";
+import {
+  PROJECT_FOLDER_STUCTURE,
+  PROJECT_FILE_INITAL_STATE,
+} from "../../../app/constants";
+import { createDirByPath, createFileByPath, readFile } from "../slice/api";
 
 const path = window.require("path");
 const dree = window.require("dree");
@@ -177,4 +183,50 @@ export function getProjectTreeData(projectData: ProjectData) {
 
   rootNode.children = getRootNodeChildren(rootNode, projectData.items);
   return rootNode;
+}
+
+export async function createProjectStructure(
+  projectPath: string,
+  projectName: string
+) {
+  const createDirRes = await createDirByPath({
+    dpath: projectPath,
+    name: projectName,
+    options: {
+      recursive: true,
+    },
+  });
+
+  const createSubDirRes = await createDirByPath({
+    dpath: createDirRes.dirPath,
+    name: PROJECT_FOLDER_STUCTURE.images,
+    options: {
+      recursive: true,
+    },
+  });
+
+  const projectFileData = Object.assign({}, PROJECT_FILE_INITAL_STATE);
+  projectFileData.name = projectName;
+
+  const createProjectFileRes = await createFileByPath({
+    fpath: createDirRes.dirPath,
+    name: `${projectName}.json`,
+    content: JSON.stringify(projectFileData),
+  });
+
+  return {
+    createDirRes,
+    createSubDirRes,
+    createProjectFileRes,
+  };
+}
+
+export async function getProjectData(path: string) {
+  const fileReadRes = await readFile({ fpath: path });
+  const fileData = fileReadRes.data;
+  if (!fileData) {
+    throw new Error("no file data");
+  }
+  const project = JSON.parse(fileData);
+  return project;
 }
