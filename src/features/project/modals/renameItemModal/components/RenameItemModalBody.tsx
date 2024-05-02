@@ -1,9 +1,14 @@
 import { Form, Input } from "antd";
+import { ProjectItem } from "../../../../../features/project/slice/types";
 
 export type RenameItemModalBodyProps = {
+  item?: ProjectItem;
   onFinish: (values: { name: string }) => void;
 };
-export function RenameItemModalBody({ onFinish }: RenameItemModalBodyProps) {
+export function RenameItemModalBody({
+  onFinish,
+  item,
+}: RenameItemModalBodyProps) {
   return (
     <section>
       <Form
@@ -15,6 +20,7 @@ export function RenameItemModalBody({ onFinish }: RenameItemModalBodyProps) {
         <Form.Item
           label="Новое имя"
           name="name"
+          initialValue={item?.name}
           rules={[
             {
               required: true,

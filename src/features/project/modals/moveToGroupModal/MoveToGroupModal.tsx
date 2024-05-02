@@ -17,6 +17,7 @@ export function MoveToGroupModal({
       {...props}
       title={"Добавить в группу"}
       centered
+      destroyOnClose
       cancelText={"Отменить"}
       footer={[
         <Button

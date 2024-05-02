@@ -17,6 +17,7 @@ export function CreateProjectModal({
       {...props}
       title={"Создать проект"}
       centered
+      destroyOnClose
       cancelText={"Отменить"}
       footer={[
         <Button

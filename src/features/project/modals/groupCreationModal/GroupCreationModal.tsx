@@ -18,6 +18,7 @@ export function GroupCreationModal({
       {...props}
       title={"Создание группы"}
       centered
+      destroyOnClose
       cancelText={"Отменить"}
       footer={[
         <Button form="groupForm" key="submit" htmlType="submit" type="primary">
