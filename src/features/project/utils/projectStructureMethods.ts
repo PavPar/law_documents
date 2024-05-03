@@ -214,6 +214,7 @@ export async function createProjectStructure(
     content: JSON.stringify(projectFileData),
   });
 
+  console.log("created", createDirRes, createSubDirRes, createProjectFileRes);
   return {
     createDirRes,
     createSubDirRes,

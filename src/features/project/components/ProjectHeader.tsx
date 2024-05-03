@@ -6,14 +6,22 @@ import { useState } from "react";
 import { CreateProjectModal } from "../modals/createProjectModal/CreateProjectModal";
 import { APP_PAGES_PATHS } from "../../App";
 import { useProjectActions } from "../hooks/useProjectActions";
-import { useAppDispatch } from "src/app/store";
+import { useAppDispatch, useAppSelector } from "src/app/store";
 import { useNavigate } from "react-router";
+import { AppLogo } from "src/features/mainPage/components/AppLogo";
+import { OWL_LOGO_SIZE } from "src/features/mainPage/components/OwlLogo";
+import {
+  selectProjectPath,
+  selectProjectRootFilePath,
+  selectProjectData,
+} from "../slice/slice";
 
 export function ProjectHeader() {
   const [isCreateProjectModalVisible, setCreateProjectModalVisible] =
     useState(false);
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
+  const projectData = useAppSelector(selectProjectData);
 
   const { addFilesToProject, createProject, openProject, saveProject } =
     useProjectActions();
@@ -31,33 +39,24 @@ export function ProjectHeader() {
       key: "project-open",
       label: "открыть проект",
       onClick: () => {
-        openProject();
+        openProject().catch((err) => console.error(err));
         //open project test
       },
     },
     {
       key: "project-addfiles",
       label: "добавить файлы в проект",
+      disabled: !projectData,
       onClick: () => {
-        addFilesToProject();
+        addFilesToProject().catch((err) => console.error(err));
       },
     },
     {
       key: "project-write",
       label: "сохранить",
+      disabled: !projectData,
       onClick: () => {
-        saveProject();
-      },
-    },
-    {
-      type: "divider",
-    },
-    {
-      key: "dir-read",
-      label: "открыть папку с файлами",
-
-      onClick: () => {
-        dispatch(getDirectoryTreeThunk());
+        saveProject().catch((err) => console.error(err));
       },
     },
   ];
@@ -70,7 +69,7 @@ export function ProjectHeader() {
         // onOk={() => setGroupCreationModalVisible(false)}
         onFinish={(values) => {
           setCreateProjectModalVisible(false);
-          createProject(values.name);
+          createProject(values.name).catch((err) => console.error(err));
         }}
       />
       <Header
@@ -92,27 +91,7 @@ export function ProjectHeader() {
             box-sizing: border-box;
           `}
         >
-          <div
-            className={css`
-              display: flex;
-              justify-content: center;
-              align-items: center;
-              background-color: black;
-              border-radius: 5px;
-              color: white;
-              font-weight: bold;
-              width: 100%;
-              height: 3em;
-            `}
-          >
-            <span
-              onClick={() => {
-                navigate(APP_PAGES_PATHS.main);
-              }}
-            >
-              ОРГАНАЙЗЕР ДЕЛ
-            </span>
-          </div>
+          <AppLogo size={OWL_LOGO_SIZE.xs} level={5} />
         </div>
         <div>
           <Dropdown menu={{ items }} trigger={["click"]}>

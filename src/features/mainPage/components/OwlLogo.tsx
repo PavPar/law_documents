@@ -3,6 +3,7 @@ import LogoSvg from "../../../app/svg/owl.svg";
 import { css } from "@emotion/css";
 export enum OWL_LOGO_SIZE {
   default = "200px",
+  xs = "50px",
   s = "100px",
   m = "200px",
   l = "300px",

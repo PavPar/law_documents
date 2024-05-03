@@ -6,11 +6,18 @@ import { Logo, LOGO_SIZE } from "./components/Logo";
 import { OWL_LOGO_SIZE, OwlLogo } from "./components/OwlLogo";
 import { FileAddOutlined, FolderOpenOutlined } from "@ant-design/icons";
 import { useProjectActions } from "../project/hooks/useProjectActions";
+import { CreateProjectModal } from "../project/modals/createProjectModal/CreateProjectModal";
+import { useState } from "react";
+import { AppLogo } from "./components/AppLogo";
 
 const { Text, Title } = Typography;
 
 export function MainPage() {
   const navigate = useNavigate();
+
+  const [isCreateProjectModalVisible, setCreateProjectModalVisible] =
+    useState(false);
+
   const { createProject, openProject } = useProjectActions();
   return (
     <Layout
@@ -19,6 +26,18 @@ export function MainPage() {
         height: "100vh",
       })}
     >
+      <CreateProjectModal
+        destroyOnClose
+        open={isCreateProjectModalVisible}
+        onCancel={() => setCreateProjectModalVisible(false)}
+        // onOk={() => setGroupCreationModalVisible(false)}
+        onFinish={(values) => {
+          setCreateProjectModalVisible(false);
+          createProject(values.name)
+            .then(() => navigate(APP_PAGES_PATHS.project))
+            .catch((err) => console.error(err));
+        }}
+      />
       <section>
         <Logo size={LOGO_SIZE.s} />
       </section>
@@ -30,25 +49,7 @@ export function MainPage() {
           gap: 5px;
         `}
       >
-        <div
-          className={css`
-            margin: auto;
-            display: grid;
-            grid-template-columns: ${OWL_LOGO_SIZE.s} 1fr;
-          `}
-        >
-          <OwlLogo size={OWL_LOGO_SIZE.s} />
-          <Title
-            className={css`
-              font-family: Impact, Haettenschweiler, "Arial Narrow Bold",
-                sans-serif;
-              text-transform: uppercase;
-              font-style: italic;
-            `}
-          >
-            Обозреватель дел
-          </Title>
-        </div>
+        <AppLogo size={OWL_LOGO_SIZE.s} level={2} />
         <div
           className={css`
             margin: auto;
@@ -67,9 +68,7 @@ export function MainPage() {
             `}
             icon={<FileAddOutlined />}
             onClick={() => {
-              createProject("test")
-                .then(() => navigate(APP_PAGES_PATHS.project))
-                .catch((err) => console.error(err));
+              setCreateProjectModalVisible(true);
             }}
           >
             Создать дело
