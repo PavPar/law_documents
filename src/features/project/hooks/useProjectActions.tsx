@@ -52,12 +52,10 @@ export function useProjectActions() {
 
     await openProjectFile(createProjectFileRes.fpath);
   }
-
-  async function addFilesToProject() {
-    const openFileDialogRes = await openFileOpenDialog();
+  async function addFilesToProjectLogic(filePaths: string[]) {
     const cpRes = await copyFiles({
       dest: path.join(projectWorkDirPath, PROJECT_FOLDER_STUCTURE.images),
-      files: openFileDialogRes.filePaths,
+      files: filePaths,
     });
 
     const items: ProjectItem[] = [];
@@ -74,8 +72,14 @@ export function useProjectActions() {
     // TODO: if item was added and project not saved, the file will exist in folder but not in index file
     dispatch(addItemsToProject(items));
     dispatch(scanForImagesInDirThunk({ dpath: projectWorkDirPath }));
+  }
 
-    console.log(openFileDialogRes, projectWorkDirPath, cpRes);
+  async function addFilesToProject() {
+    const openFileDialogRes = await openFileOpenDialog();
+    if (openFileDialogRes.canceled) {
+      throw new Error("canceled");
+    }
+    await addFilesToProjectLogic(openFileDialogRes.filePaths);
   }
 
   async function openProject() {
@@ -119,5 +123,6 @@ export function useProjectActions() {
     openProject,
     addFilesToProject,
     createProject,
+    addFilesToProjectLogic,
   };
 }

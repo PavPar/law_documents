@@ -32,6 +32,7 @@ import { GroupCreationModal } from "./modals/groupCreationModal/GroupCreationMod
 import { MoveToGroupModal } from "./modals/moveToGroupModal/MoveToGroupModal";
 import { RenameItemModal } from "./modals/renameItemModal/RenameItemModal";
 import { Tree } from "primereact/tree";
+import { FileDropZone } from "./components/FileDropZone";
 
 // import { Type } from "dree";
 // eslint-disable-next-line @typescript-eslint/no-var-requires
@@ -58,7 +59,6 @@ export function Project() {
   const [isMoveToGroupModalVisible, setMoveToGroupModalVisible] =
     useState(false);
   const [isRenameItemModalVisible, setRenameItemModalVisible] = useState(false);
-
   useEffect(() => {
     if (files) {
       //   setTreeData(useTreeNodeStructure(files));
@@ -119,6 +119,7 @@ export function Project() {
         height: "100vh",
       })}
     >
+      <FileDropZone />
       <GroupCreationModal
         open={isGroupCreationModalVisible}
         onCancel={() => setGroupCreationModalVisible(false)}
