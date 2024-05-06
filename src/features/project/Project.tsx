@@ -119,7 +119,6 @@ export function Project() {
         height: "100vh",
       })}
     >
-      <FileDropZone />
       <GroupCreationModal
         open={isGroupCreationModalVisible}
         onCancel={() => setGroupCreationModalVisible(false)}
@@ -252,7 +251,12 @@ export function Project() {
           </Sider>
 
           <Layout>
-            <Content>
+            <Content
+              className={css`
+                position: relative;
+              `}
+            >
+              {projectData && <FileDropZone />}
               {imageData ? (
                 <TransformWrapper limitToBounds={false}>
                   <TransformComponent>

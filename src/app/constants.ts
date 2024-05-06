@@ -17,7 +17,7 @@ export enum IPC_HANDLES {
 }
 
 export type FetchStatus = "idle" | "pending" | "failed";
-
+export const ACCEPTED_FILE_TYPES = [".jpeg", ".jpg", ".png", ".gif"];
 export const DREE_IMAGE_OPTIONS = {
   stat: false,
   normalize: true,
