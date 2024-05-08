@@ -2,14 +2,21 @@ import { Button, Form, Input, Select, Typography } from "antd";
 import { useAppSelector } from "../../../../../app/store";
 import { selectProjectData } from "../../../../../features/project/slice/slice";
 import { ProjectItem } from "../../../../../features/project/slice/types";
+import { ProjectTreeDataNode } from "src/features/project/utils/projectStructureMethods";
 
 export type MoveToGroupModalBodyProps = {
   onFinish: (values: { group: string }) => void;
+  target: ProjectTreeDataNode;
 };
-export function MoveToGroupModalBody({ onFinish }: MoveToGroupModalBodyProps) {
+export function MoveToGroupModalBody({
+  onFinish,
+  target,
+}: MoveToGroupModalBodyProps) {
   const project = useAppSelector(selectProjectData);
   const { Option } = Select;
-  const projectGroups = project?.items.filter((i) => i.type === "group");
+  const projectGroups = project?.items.filter(
+    (i) => i.type === "group" && i.uid !== target.data.uid
+  );
   return (
     <section>
       <Form

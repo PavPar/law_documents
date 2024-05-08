@@ -6,10 +6,12 @@ import {
 
 export type MoveToGroupModalProps = ModalProps & {
   onFinish: MoveToGroupModalBodyProps["onFinish"];
+  target: MoveToGroupModalBodyProps["target"];
 };
 
 export function MoveToGroupModal({
   onFinish,
+  target,
   ...props
 }: MoveToGroupModalProps) {
   return (
@@ -30,7 +32,7 @@ export function MoveToGroupModal({
         </Button>,
       ]}
     >
-      <MoveToGroupModalBody onFinish={onFinish} />
+      <MoveToGroupModalBody onFinish={onFinish} target={target} />
     </Modal>
   );
 }

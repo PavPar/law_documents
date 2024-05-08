@@ -28,6 +28,7 @@ import {
   ReactZoomPanPinchContentRef,
   TransformComponent,
   TransformWrapper,
+  useControls,
 } from "react-zoom-pan-pinch";
 import { TreeNode, useTreeNodeStructure } from "./hooks/useTreeNodeStructure";
 import { ProjectHeader } from "./components/ProjectHeader";
@@ -60,6 +61,9 @@ import {
   FolderOutlined,
   FileImageOutlined,
   FolderAddFilled,
+  ZoomInOutlined,
+  ZoomOutOutlined,
+  CompressOutlined,
 } from "@ant-design/icons";
 import { useNavigate } from "react-router";
 import { APP_PAGES_PATHS } from "../App";
@@ -72,6 +76,10 @@ const dree = window.require("dree");
 const { Text } = Typography;
 const { Search } = Input;
 
+enum SCALE_BOUNDS {
+  max = 2,
+  min = 0.5,
+}
 const path = window.require("path");
 
 function TreeIconSwitch({ item }: { item: ProjectTreeDataNode }) {
@@ -82,6 +90,33 @@ function TreeIconSwitch({ item }: { item: ProjectTreeDataNode }) {
       return <FolderOutlined />;
   }
 }
+
+const Controls = () => {
+  const { zoomIn, zoomOut, centerView, instance } = useControls();
+
+  return (
+    <div
+      className={css`
+        position: absolute;
+        bottom: 5px;
+        right: 5px;
+        display: grid;
+        gap: 5px;
+        z-index: 100;
+      `}
+    >
+      <Button onClick={() => zoomIn()}>
+        <ZoomInOutlined />
+      </Button>
+      <Button onClick={() => zoomOut()}>
+        <ZoomOutOutlined />
+      </Button>
+      <Button onClick={() => centerView()}>
+        <CompressOutlined />
+      </Button>
+    </div>
+  );
+};
 
 export function Project() {
   const dispatch = useAppDispatch();
@@ -100,7 +135,6 @@ export function Project() {
   const [isMoveToGroupModalVisible, setMoveToGroupModalVisible] =
     useState(false);
   const [isRenameItemModalVisible, setRenameItemModalVisible] = useState(false);
-  const [search, setSearch] = useState("");
   const environment = useRef();
   const tree = useRef<TreeRef<any>>();
   const imageWrapperRef = useRef<ReactZoomPanPinchContentRef>();
@@ -215,6 +249,7 @@ export function Project() {
       <MoveToGroupModal
         open={isMoveToGroupModalVisible}
         onCancel={() => setMoveToGroupModalVisible(false)}
+        target={contextMenuTargetNode}
         // onOk={() => setGroupCreationModalVisible(false)}
         onFinish={(values) => {
           setMoveToGroupModalVisible(false);
@@ -473,7 +508,10 @@ export function Project() {
                   limitToBounds={false}
                   centerOnInit
                   ref={imageWrapperRef}
+                  minScale={SCALE_BOUNDS.min}
+                  maxScale={SCALE_BOUNDS.max}
                 >
+                  <Controls />
                   <TransformComponent
                     wrapperClass={css`
                       width: 100% !important;
