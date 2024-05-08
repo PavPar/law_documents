@@ -41,7 +41,9 @@ export function FileDropZone({}: FileDropZoneProps) {
         position: absolute;
         width: 100%;
         height: 100%;
-        z-index: 1000;
+        top: 0;
+        left: 0;
+        /* z-index: 1000; */
       `}
     >
       {isDragActive && (
@@ -65,7 +67,7 @@ export function FileDropZone({}: FileDropZoneProps) {
                 display: flex;
                 justify-content: center;
                 align-items: center;
-                z-index: 1001;
+                z-index: 1000;
                 color: white;
               `}
             >

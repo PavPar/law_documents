@@ -6,7 +6,7 @@ import {
   useRef,
   useState,
 } from "react";
-import { Button, Dropdown, Layout, Typography } from "antd";
+import { Button, Dropdown, Input, Layout, Typography } from "antd";
 const { Header, Footer, Sider, Content } = Layout;
 import { css } from "@emotion/css";
 import { useAppDispatch, useAppSelector } from "../../app/store";
@@ -24,7 +24,11 @@ import {
   setProjectItemData,
 } from "./slice/slice";
 import { displayImageByPathThunk } from "./slice/thunks";
-import { TransformComponent, TransformWrapper } from "react-zoom-pan-pinch";
+import {
+  ReactZoomPanPinchContentRef,
+  TransformComponent,
+  TransformWrapper,
+} from "react-zoom-pan-pinch";
 import { TreeNode, useTreeNodeStructure } from "./hooks/useTreeNodeStructure";
 import { ProjectHeader } from "./components/ProjectHeader";
 import {
@@ -52,7 +56,11 @@ import {
   UncontrolledTreeEnvironment,
 } from "react-complex-tree";
 import "react-complex-tree/lib/style-modern.css";
-import { FolderOutlined, FileImageOutlined } from "@ant-design/icons";
+import {
+  FolderOutlined,
+  FileImageOutlined,
+  FolderAddFilled,
+} from "@ant-design/icons";
 import { useNavigate } from "react-router";
 import { APP_PAGES_PATHS } from "../App";
 var _ = require("lodash");
@@ -62,6 +70,7 @@ var _ = require("lodash");
 const dree = window.require("dree");
 
 const { Text } = Typography;
+const { Search } = Input;
 
 const path = window.require("path");
 
@@ -94,6 +103,7 @@ export function Project() {
   const [search, setSearch] = useState("");
   const environment = useRef();
   const tree = useRef<TreeRef<any>>();
+  const imageWrapperRef = useRef<ReactZoomPanPinchContentRef>();
 
   const [focusedItem, setFocusedItem] = useState<TreeItemIndex | undefined>();
   const [expandedItems, setExpandedItems] = useState([]);
@@ -118,26 +128,26 @@ export function Project() {
     }
     const data = getProjectTreeData(projectData);
 
-    if (search) {
-      console.log(search);
-      // const filteredData = _.pickBy(
-      //   data,
-      //   (value: ProjectTreeDataNode, key: string) => {
-      //     return (
-      //       value.data?.name?.toLowerCase().includes(search.toLowerCase()) ||
-      //       key === "root"
-      //     );
-      //   }
-      // );
-      const filteredData = itemSearch(data["root"], data, search);
-      console.log(filteredData);
-      setTreeData({ ...filteredData });
-      tree.current.expandAll();
-      return;
-    }
+    // if (search) {
+    //   console.log(search);
+    //   // const filteredData = _.pickBy(
+    //   //   data,
+    //   //   (value: ProjectTreeDataNode, key: string) => {
+    //   //     return (
+    //   //       value.data?.name?.toLowerCase().includes(search.toLowerCase()) ||
+    //   //       key === "root"
+    //   //     );
+    //   //   }
+    //   // );
+    //   const filteredData = itemSearch(data["root"], data, search);
+    //   console.log(filteredData);
+    //   setTreeData({ ...filteredData });
+    //   tree.current.expandAll();
+    //   return;
+    // }
 
     setTreeData(data);
-  }, [projectData, search]);
+  }, [projectData]);
 
   useEffect(() => {
     console.log("trreee - ", treeData);
@@ -150,7 +160,8 @@ export function Project() {
     {
       label: "Переименовать",
       command: () => {
-        setRenameItemModalVisible(true);
+        // setRenameItemModalVisible(true);
+        tree.current.startRenamingItem(contextMenuTargetNode?.index);
       },
     },
     {
@@ -178,6 +189,13 @@ export function Project() {
       },
     },
   ];
+
+  function onSearch(search: string) {
+    const data = getProjectTreeData(projectData);
+    const filteredData = itemSearch(data["root"], data, search);
+    setTreeData(filteredData);
+  }
+
   return (
     <Layout
       className={css({
@@ -233,152 +251,159 @@ export function Project() {
             className={css`
               background-color: #dcdcdc !important;
               border-right: 1px black solid;
-              overflow: scroll;
+              overflow: hidden;
             `}
           >
-            <Button
-              onClick={() => {
-                setGroupCreationModalVisible(true);
-              }}
-            >
-              Создать группу
-            </Button>
-            <form
-              onSubmit={(e) => {
-                e.preventDefault();
-              }}
-            >
-              <input
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
-                placeholder="Search..."
-              />
-              <button type="submit">Find item</button>
-            </form>
             <div
               className={css`
                 display: grid;
-                overflow-y: scroll;
-                max-height: 100vh;
-                padding-bottom: 100px;
-                gap: 5px;
               `}
             >
-              <ContextMenu
-                model={contextMenuItems}
-                ref={contextMenuRef}
-                breakpoint="767px"
-              />
-
-              <ControlledTreeEnvironment
-                items={treeData}
-                getItemTitle={(item: ProjectTreeDataNode) =>
-                  item.data.name || item.data.uid
-                }
-                viewState={{
-                  ["tree"]: {
-                    focusedItem,
-                    expandedItems,
-                    selectedItems,
-                  },
-                }}
-                canDragAndDrop={true}
-                canDropOnFolder={true}
-                canReorderItems={true}
-                renderItemTitle={({ title, item }) => (
-                  <div
-                    className={css`
-                      display: grid;
-                      grid-auto-flow: column;
-                      gap: 1ch;
-                      /* border: 1px red solid; */
-                    `}
-                    onContextMenu={(event) => {
-                      if (item.data?.type === "root") {
-                        return;
-                      }
-                      contextMenuRef.current.show(event);
-                      setContextMenuTargetNode(item);
-                    }}
-                  >
-                    <TreeIconSwitch item={item} />
-                    <span>{title}</span>
-                  </div>
-                )}
-                onFocusItem={(node) => {
-                  console.log("clicked", node);
-                  if (node.data.type === "group") {
-                    return;
-                  }
-                  if (node.data.type === "root") {
-                    return;
-                  }
-                  dispatch(
-                    displayImageByPathThunk(
-                      path.join(projectWorkDir, node.data.path)
-                    )
-                  );
-                  setFocusedItem(node.index);
-                }}
-                onExpandItem={(item) =>
-                  setExpandedItems([...expandedItems, item.index])
-                }
-                onCollapseItem={(item) =>
-                  setExpandedItems(
-                    expandedItems.filter(
-                      (expandedItemIndex) => expandedItemIndex !== item.index
-                    )
-                  )
-                }
-                onSelectItems={(items) => setSelectedItems(items)}
-                canDropAt={(items, target) => {
-                  if (target.targetType === "item") {
-                    const item = treeData[target.targetItem];
-                    // return target.targetItem !=;
-                    //TODO: prevent group to group add
-                  }
-
-                  return true;
-                }}
-                onDrop={(items, target) => {
-                  if (!items || !target) {
-                    return;
-                  }
-                  if (target.targetType === "item") {
-                    items.forEach((i) => {
-                      dispatch(
-                        setItemParent({
-                          uid: i.index.toString(),
-                          parentUID: target.targetItem.toString(),
-                        })
-                      );
-                    });
-                  }
-                  if (target.targetType === "between-items") {
-                    const targetParent =
-                      target.parentItem === "root"
-                        ? undefined
-                        : target.parentItem.toString();
-                    items.forEach((i) => {
-                      dispatch(
-                        setItemParent({
-                          uid: i.index.toString(),
-                          parentUID: targetParent,
-                        })
-                      );
-                    });
-                  }
-                }}
+              <div
+                className={css`
+                  display: grid;
+                  grid-template-columns: 1fr auto;
+                `}
               >
-                <Tree
-                  treeId="tree"
-                  rootItem="root"
-                  treeLabel="Tree Example"
-                  ref={tree}
+                <Search placeholder="Поиск" onSearch={onSearch} allowClear />
+                <Button
+                  onClick={() => {
+                    setGroupCreationModalVisible(true);
+                  }}
+                >
+                  <FolderAddFilled />
+                </Button>
+              </div>
+              <div
+                className={css`
+                  overflow-y: scroll;
+                  max-height: 85vh;
+                  padding-bottom: 100px;
+                `}
+              >
+                <ContextMenu
+                  model={contextMenuItems}
+                  ref={contextMenuRef}
+                  breakpoint="767px"
                 />
-              </ControlledTreeEnvironment>
 
-              {/* {treeData && (
+                <ControlledTreeEnvironment
+                  items={treeData}
+                  getItemTitle={(item: ProjectTreeDataNode) =>
+                    item.data.name || item.data.uid
+                  }
+                  viewState={{
+                    ["tree"]: {
+                      focusedItem,
+                      expandedItems,
+                      selectedItems,
+                    },
+                  }}
+                  canDragAndDrop={true}
+                  canDropOnFolder={true}
+                  canReorderItems={true}
+                  renderItemTitle={({ title, item }) => (
+                    <div
+                      className={css`
+                        display: grid;
+                        grid-auto-flow: column;
+                        gap: 1ch;
+                        justify-content: start;
+                        width: 100%;
+                      `}
+                      onContextMenu={(event) => {
+                        if (item.data?.type === "root") {
+                          return;
+                        }
+                        contextMenuRef.current.show(event);
+                        setContextMenuTargetNode(item);
+                      }}
+                    >
+                      <TreeIconSwitch item={item} />
+                      <span>{title}</span>
+                    </div>
+                  )}
+                  onFocusItem={(node) => {
+                    console.log("clicked", node);
+                    if (node.data.type === "group") {
+                      return;
+                    }
+                    if (node.data.type === "root") {
+                      return;
+                    }
+                    dispatch(
+                      displayImageByPathThunk(
+                        path.join(projectWorkDir, node.data.path)
+                      )
+                    );
+                    setFocusedItem(node.index);
+                    imageWrapperRef.current?.resetTransform();
+                  }}
+                  onExpandItem={(item) =>
+                    setExpandedItems([...expandedItems, item.index])
+                  }
+                  onCollapseItem={(item) =>
+                    setExpandedItems(
+                      expandedItems.filter(
+                        (expandedItemIndex) => expandedItemIndex !== item.index
+                      )
+                    )
+                  }
+                  onSelectItems={(items) => setSelectedItems(items)}
+                  canDropAt={(items, target) => {
+                    if (target.targetType === "item") {
+                      const item = treeData[target.targetItem];
+                    }
+
+                    return true;
+                  }}
+                  onRenameItem={(item, name) => {
+                    dispatch(
+                      setProjectItemData({
+                        uid: item.index.toString(),
+                        name: name,
+                      })
+                    );
+                  }}
+                  onDrop={(items, target) => {
+                    if (!items || !target) {
+                      return;
+                    }
+                    if (target.targetType === "item") {
+                      items.forEach((i) => {
+                        dispatch(
+                          setItemParent({
+                            uid: i.index.toString(),
+                            parentUID: target.targetItem.toString(),
+                          })
+                        );
+                      });
+                    }
+                    if (target.targetType === "between-items") {
+                      const targetParent =
+                        target.parentItem === "root"
+                          ? undefined
+                          : target.parentItem.toString();
+                      items.forEach((i) => {
+                        dispatch(
+                          setItemParent({
+                            uid: i.index.toString(),
+                            parentUID: targetParent,
+                          })
+                        );
+                      });
+                    }
+                  }}
+                >
+                  <Tree
+                    treeId="tree"
+                    rootItem="root"
+                    treeLabel="Tree Example"
+                    ref={tree}
+                  />
+                </ControlledTreeEnvironment>
+
+                {/* {treeData && (
                 <Tree
                   style={{ padding: 0 }}
                   expandedKeys={Object.assign(
@@ -433,6 +458,7 @@ export function Project() {
                   }}
                 />
               )} */}
+              </div>
             </div>
           </Sider>
 
@@ -442,13 +468,22 @@ export function Project() {
                 position: relative;
               `}
             >
-              {projectData && <FileDropZone />}
               {imageData ? (
-                <TransformWrapper limitToBounds={false}>
-                  <TransformComponent>
+                <TransformWrapper
+                  limitToBounds={false}
+                  centerOnInit
+                  ref={imageWrapperRef}
+                >
+                  <TransformComponent
+                    wrapperClass={css`
+                      width: 100% !important;
+                      height: 100% !important;
+                    `}
+                  >
                     <img
                       className={css`
-                        width: 75vw;
+                        max-width: 75vw;
+                        max-height: 90vh;
                       `}
                       src={`data:image/jpg;base64,${imageData}`}
                     ></img>
@@ -475,6 +510,7 @@ export function Project() {
                   )}
                 </div>
               )}
+              {/* {projectData && <FileDropZone />} */}
             </Content>
           </Layout>
         </Layout>
