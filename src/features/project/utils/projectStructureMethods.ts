@@ -11,6 +11,7 @@ import {
   PROJECT_FILE_INITAL_STATE,
 } from "../../../app/constants";
 import { createDirByPath, createFileByPath, readFile } from "../slice/api";
+import { TreeItemIndex, TreeItem } from "react-complex-tree";
 
 const path = window.require("path");
 const dree = window.require("dree");
@@ -59,7 +60,8 @@ export function imageToProjectStructure({
   };
 }
 
-export type ProjectTreeDataNode = TreeNode & { data?: ProjectItem };
+export type ProjectTreeDataNode = TreeItem<ProjectItem>;
+export type ProjectTreeData = Record<TreeItemIndex, TreeItem<ProjectItem>>;
 
 function getIcon(type: ProjectItemTypes) {
   switch (type) {
@@ -72,30 +74,16 @@ function getIcon(type: ProjectItemTypes) {
   }
 }
 
-function createTreeNode(
-  //   props: TreeNode,
-  {
-    childIndex,
-    data,
-    parentKey,
-  }: {
-    data: ProjectItem;
-    childIndex: number;
-    parentKey?: ProjectTreeDataNode["key"];
-  }
-): ProjectTreeDataNode {
-  const key = parentKey ? `${parentKey}-${childIndex}` : `${childIndex}`;
-  return {
-    key,
-    label: data?.name,
-    data,
-    leaf: data?.type === "image",
-    icon: getIcon(data.type),
-    // children: node.children?.map((child, index) =>
-    //   handleChildAdd(child, index, key)
-    // ),
-    // data: props,
+function createTreeNode(props: ProjectTreeDataNode): ProjectTreeDataNode {
+  const node: ProjectTreeDataNode = {
+    canMove: true,
+    canRename: true,
+    isFolder: !(props?.data?.type === "image"),
+    data: props.data,
+    ...props,
   };
+
+  return node;
 }
 
 type ParentUIDChildItemMap = {
@@ -111,78 +99,92 @@ function getParentItemMap(items: ProjectItem[]) {
   return map;
 }
 
-export function getRootNodeChildren(
-  rootNode: ProjectTreeDataNode,
-  items: ProjectItem[]
-) {
-  const map = getParentItemMap(items);
-  const rootItems = map["root"];
-  const rootNodes: ProjectTreeDataNode[] = [];
+// export function getRootNodeChildren(
+//   rootNode: ProjectTreeDataNode,
+//   items: ProjectItem[]
+// ) {
+//   const map = getParentItemMap(items);
+//   const rootItems = map["root"];
+//   const rootNodes: ProjectTreeDataNode[] = [];
 
-  function recursionFunc(
-    parentNode: ProjectTreeDataNode,
-    item: ProjectItem,
-    index: number
-  ) {
-    const currentNode = createTreeNode({
-      data: item,
-      parentKey: parentNode.key,
-      childIndex: index,
-    });
+//   function recursionFunc(
+//     parentNode: ProjectTreeDataNode,
+//     item: ProjectItem,
+//     index: number
+//   ) {
+//     const currentNode = createTreeNode({
+//       data: item,
+//       parentKey: parentNode.key,
+//       childIndex: index,
+//     });
 
-    const children = map[item.uid];
+//     const children = map[item.uid];
 
-    if (children) {
-      currentNode.children = [];
-      children.forEach((c, idx) => {
-        currentNode.children.push(recursionFunc(currentNode, c, idx));
-      });
-    }
+//     if (children) {
+//       currentNode.children = [];
+//       children.forEach((c, idx) => {
+//         currentNode.children.push(recursionFunc(currentNode, c, idx));
+//       });
+//     }
 
-    return currentNode;
-  }
+//     return currentNode;
+//   }
 
-  //TODO: recursion
-  rootItems?.forEach((item, index) => {
-    // const currentNode = createTreeNode({
-    //   data: item,
-    //   parentKey: rootNode.key,
-    //   childIndex: index,
-    // });
+//   //TODO: recursion
+//   rootItems?.forEach((item, index) => {
+//     // const currentNode = createTreeNode({
+//     //   data: item,
+//     //   parentKey: rootNode.key,
+//     //   childIndex: index,
+//     // });
 
-    // const children = map[item.uid];
+//     // const children = map[item.uid];
 
-    // if (children) {
-    //   currentNode.children = [];
+//     // if (children) {
+//     //   currentNode.children = [];
 
-    //   children.forEach((c, idx) => {
-    //     const childNode = createTreeNode({
-    //       data: c,
-    //       parentKey: currentNode.key,
-    //       childIndex: idx,
-    //     });
-    //     currentNode.children.push(childNode);
-    //   });
-    // }
+//     //   children.forEach((c, idx) => {
+//     //     const childNode = createTreeNode({
+//     //       data: c,
+//     //       parentKey: currentNode.key,
+//     //       childIndex: idx,
+//     //     });
+//     //     currentNode.children.push(childNode);
+//     //   });
+//     // }
 
-    rootNodes.push(recursionFunc(rootNode, item, index));
-  });
+//     rootNodes.push(recursionFunc(rootNode, item, index));
+//   });
 
-  return rootNodes;
-}
+//   return rootNodes;
+// }
 
-export function getProjectTreeData(projectData: ProjectData) {
-  const rootNode: ProjectTreeDataNode = {
-    key: "0",
-    label: projectData.name,
-    data: {
-      type: ProductItemType.root as unknown as ProjectItem["type"],
-      uid: "root",
+export function getProjectTreeData(projectData: ProjectData): ProjectTreeData {
+  const items = projectData.items;
+
+  const nodesMap = getParentItemMap(items);
+
+  const treeItems: ProjectTreeData = {
+    root: {
+      index: "root",
+      isFolder: true,
+      data: {
+        type: ProductItemType.root as unknown as ProjectItem["type"],
+        uid: "root",
+      },
+      children: (nodesMap["root"] || []).map((i) => i.uid),
     },
   };
 
-  rootNode.children = getRootNodeChildren(rootNode, projectData.items);
-  return rootNode;
+  projectData.items.map((i) => {
+    treeItems[i.uid] = createTreeNode({
+      data: i,
+      index: i.uid,
+      children: (nodesMap[i.uid] || []).map((i) => i.uid),
+    });
+  });
+
+  return treeItems;
 }
 
 export async function createProjectStructure(
@@ -230,4 +232,46 @@ export async function getProjectData(path: string) {
   }
   const project = JSON.parse(fileData);
   return project;
+}
+
+export function itemSearch(
+  root: ProjectTreeDataNode,
+  tree: ProjectTreeData,
+  search: string | undefined
+) {
+  if (!search) {
+    return tree;
+  }
+
+  const filteredTree: ProjectTreeData = {};
+  filteredTree[root.index] = root;
+
+  function recursiveFn(itemKey: ProjectTreeDataNode["index"]): boolean {
+    const item = tree[itemKey];
+    const children = item.children || [];
+    const isSearchedValue = item?.data?.name
+      .toLowerCase()
+      .includes(search.toLowerCase());
+    let hasAnyChildMatch = false;
+
+    if (children) {
+      hasAnyChildMatch = children.reduce((acc, cIdx) => {
+        return recursiveFn(cIdx) || acc;
+      }, false);
+    }
+
+    if (isSearchedValue || hasAnyChildMatch) {
+      filteredTree[item.index] = item;
+    }
+
+    return isSearchedValue || hasAnyChildMatch;
+  }
+
+  const rootChildren = root?.children || [];
+
+  rootChildren.forEach((indx) => {
+    recursiveFn(indx);
+  });
+
+  return filteredTree;
 }
