@@ -37,3 +37,12 @@ export const PROJECT_FILE_INITAL_STATE: ProjectData = Object.seal({
   items: [],
   name: "new-project",
 } as ProjectData);
+
+export enum NOTIFICATION_MESSAGES {
+  fileAddSuccess = "Файлы добавлены успешно",
+  fileAddFail = "Не удалось добавить файлы",
+  projectOpenSuccess = "Проект открыт успешно",
+  projectOpenFail = "Не удалось открыть проект",
+  projectSaveSuccess = "Проект сохранен успешно",
+  projectSaveFail = "Не удалось сохранить проект",
+}

@@ -15,16 +15,21 @@ import {
   selectProjectRootFilePath,
   selectProjectData,
 } from "../slice/slice";
+import { AddFilesModal } from "../modals/addFilesModal/AddFilesModal";
+import { useNotification } from "../hooks/useNotification";
+import { NOTIFICATION_MESSAGES } from "src/app/constants";
 
 export function ProjectHeader() {
   const [isCreateProjectModalVisible, setCreateProjectModalVisible] =
     useState(false);
+  const [isAddFileModalVisible, setAddFileModalVisible] = useState(false);
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
   const projectData = useAppSelector(selectProjectData);
 
   const { addFilesToProject, createProject, openProject, saveProject } =
     useProjectActions();
+  const [notificationContext, notify] = useNotification();
 
   const items: MenuProps["items"] = [
     {
@@ -39,7 +44,14 @@ export function ProjectHeader() {
       key: "project-open",
       label: "открыть проект",
       onClick: () => {
-        openProject().catch((err) => console.error(err));
+        openProject()
+          .then(() => {
+            notify("success", NOTIFICATION_MESSAGES.projectOpenSuccess);
+          })
+          .catch((err) => {
+            notify("error", NOTIFICATION_MESSAGES.projectOpenFail);
+            console.error(err);
+          });
         //open project test
       },
     },
@@ -48,7 +60,8 @@ export function ProjectHeader() {
       label: "добавить файлы в проект",
       disabled: !projectData,
       onClick: () => {
-        addFilesToProject().catch((err) => console.error(err));
+        // addFilesToProject().catch((err) => console.error(err));
+        setAddFileModalVisible(true);
       },
     },
     {
@@ -56,13 +69,21 @@ export function ProjectHeader() {
       label: "сохранить",
       disabled: !projectData,
       onClick: () => {
-        saveProject().catch((err) => console.error(err));
+        saveProject()
+          .then(() => {
+            notify("success", NOTIFICATION_MESSAGES.projectSaveSuccess);
+          })
+          .catch((err) => {
+            notify("error", NOTIFICATION_MESSAGES.projectSaveFail);
+            console.error(err);
+          });
       },
     },
   ];
 
   return (
     <>
+      {notificationContext}
       <CreateProjectModal
         open={isCreateProjectModalVisible}
         onCancel={() => setCreateProjectModalVisible(false)}
@@ -71,6 +92,11 @@ export function ProjectHeader() {
           setCreateProjectModalVisible(false);
           createProject(values.name).catch((err) => console.error(err));
         }}
+      />
+      <AddFilesModal
+        open={isAddFileModalVisible}
+        onCancel={() => setAddFileModalVisible(false)}
+        // onOk={() => setGroupCreationModalVisible(false)}
       />
       <Header
         className={css`

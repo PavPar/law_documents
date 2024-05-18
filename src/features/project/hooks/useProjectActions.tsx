@@ -57,7 +57,7 @@ export function useProjectActions() {
       dest: path.join(projectWorkDirPath, PROJECT_FOLDER_STUCTURE.images),
       files: filePaths,
     });
-
+    console.log(cpRes);
     const items: ProjectItem[] = [];
     const map = cpRes?.newFileNamesMap || {};
     cpRes?.newFilesPaths.forEach((fp) =>
@@ -90,7 +90,7 @@ export function useProjectActions() {
     }
 
     const projectFilePath = openProjectDialogRes.filePaths[0];
-    openProjectFile(projectFilePath);
+    await openProjectFile(projectFilePath);
   }
 
   async function openProjectFile(projectFilePath: string) {

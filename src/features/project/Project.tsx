@@ -133,7 +133,7 @@ export function Project() {
   const [isMoveToGroupModalVisible, setMoveToGroupModalVisible] =
     useState(false);
   const [isRenameItemModalVisible, setRenameItemModalVisible] = useState(false);
-  const environment = useRef();
+
   const tree = useRef<TreeRef<any>>();
   const imageWrapperRef = useRef<ReactZoomPanPinchContentRef>();
 

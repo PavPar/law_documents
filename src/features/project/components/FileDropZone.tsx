@@ -2,14 +2,17 @@ import { css } from "@emotion/css";
 import { useCallback, useState } from "react";
 import { useProjectActions } from "../hooks/useProjectActions";
 import { useDropzone } from "react-dropzone";
-import { ACCEPTED_FILE_TYPES } from "src/app/constants";
-
+import { ACCEPTED_FILE_TYPES, NOTIFICATION_MESSAGES } from "src/app/constants";
+import { useNotification } from "../hooks/useNotification";
+import { Button } from "antd";
 export type FileDropZoneProps = {};
-export function FileDropZone({}: FileDropZoneProps) {
-  const { addFilesToProjectLogic } = useProjectActions();
 
+export function FileDropZone({}: FileDropZoneProps) {
+  const { addFilesToProjectLogic, addFilesToProject } = useProjectActions();
+  const [notificationContext, notify] = useNotification();
+  const [isFileBeingAdded, setFileBeingAdded] = useState(false);
   const onDrop = (files: File[]) => {
-    console.log(files);
+    setFileBeingAdded(true);
     const filePaths: string[] = [];
 
     if (!files) {
@@ -21,9 +24,17 @@ export function FileDropZone({}: FileDropZoneProps) {
     }
 
     if (filePaths) {
-      addFilesToProjectLogic(filePaths).catch((err) => {
-        console.error(err);
-      });
+      addFilesToProjectLogic(filePaths)
+        .then(() => {
+          notify("success", NOTIFICATION_MESSAGES.fileAddSuccess);
+        })
+        .catch((err) => {
+          notify("success", NOTIFICATION_MESSAGES.fileAddFail);
+          console.error(err);
+        })
+        .finally(() => {
+          setFileBeingAdded(false);
+        });
     }
   };
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
@@ -38,45 +49,43 @@ export function FileDropZone({}: FileDropZoneProps) {
     <div
       {...getRootProps()}
       className={css`
-        position: absolute;
+        border: 2px black dashed;
+        border-radius: 5px;
         width: 100%;
         height: 100%;
-        top: 0;
-        left: 0;
-        /* z-index: 1000; */
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-width: 25vw;
+        min-height: 25vh;
+        flex-direction: column;
       `}
     >
-      {isDragActive && (
-        <div
-          className={css`
-            width: 100%;
-            height: 100%;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            background-color: rgba(0, 0, 0, 0.5);
-          `}
-        >
-          {
-            <div
-              className={css`
-                border: 2px white dashed;
-                border-radius: 5px;
-                width: 75%;
-                height: 75%;
-                display: flex;
-                justify-content: center;
-                align-items: center;
-                z-index: 1000;
-                color: white;
-              `}
-            >
-              <input {...getInputProps()} />
-              Перетащите файлы сюда
-            </div>
-          }
-        </div>
-      )}
+      {notificationContext}
+      <input
+        {...getInputProps()}
+        onClick={(e) => {
+          e.preventDefault();
+        }}
+      />
+      {isFileBeingAdded ? "Файлы добавляются" : "Перетащите файлы сюда"}
+      <Button
+        onClick={() => {
+          addFilesToProject()
+            .then(() => {
+              notify("success", NOTIFICATION_MESSAGES.fileAddSuccess);
+            })
+            .catch((err) => {
+              notify("success", NOTIFICATION_MESSAGES.fileAddFail);
+              console.error(err);
+            })
+            .finally(() => {
+              setFileBeingAdded(false);
+            });
+        }}
+      >
+        Выбрать файлы
+      </Button>
     </div>
   );
 }

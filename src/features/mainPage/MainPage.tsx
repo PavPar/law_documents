@@ -9,11 +9,14 @@ import { useProjectActions } from "../project/hooks/useProjectActions";
 import { CreateProjectModal } from "../project/modals/createProjectModal/CreateProjectModal";
 import { useState } from "react";
 import { AppLogo } from "./components/AppLogo";
+import { useNotification } from "../project/hooks/useNotification";
+import { NOTIFICATION_MESSAGES } from "src/app/constants";
 
 const { Text, Title } = Typography;
 
 export function MainPage() {
   const navigate = useNavigate();
+  const [notificationContext, notify] = useNotification();
 
   const [isCreateProjectModalVisible, setCreateProjectModalVisible] =
     useState(false);
@@ -26,6 +29,7 @@ export function MainPage() {
         height: "100vh",
       })}
     >
+      {notificationContext}
       <CreateProjectModal
         destroyOnClose
         open={isCreateProjectModalVisible}
@@ -82,7 +86,10 @@ export function MainPage() {
             onClick={() => {
               openProject()
                 .then(() => navigate(APP_PAGES_PATHS.project))
-                .catch((err) => console.error(err));
+                .catch((err) => {
+                  notify("error", NOTIFICATION_MESSAGES.projectOpenFail);
+                  console.error(err);
+                });
             }}
           >
             Открыть существующее дело
