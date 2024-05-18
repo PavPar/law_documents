@@ -1,5 +1,4 @@
 import React from "react";
-import { Files } from "./files/Files";
 import { Project } from "./project/Project";
 import { Route, Routes } from "react-router";
 import { MainPage } from "./mainPage/MainPage";

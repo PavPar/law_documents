@@ -69,9 +69,7 @@ import { useNavigate } from "react-router";
 import { APP_PAGES_PATHS } from "../App";
 var _ = require("lodash");
 
-// import { Type } from "dree";
 // eslint-disable-next-line @typescript-eslint/no-var-requires
-const dree = window.require("dree");
 
 const { Text } = Typography;
 const { Search } = Input;

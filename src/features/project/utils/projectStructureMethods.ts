@@ -14,13 +14,12 @@ import { createDirByPath, createFileByPath, readFile } from "../slice/api";
 import { TreeItemIndex, TreeItem } from "react-complex-tree";
 
 const path = window.require("path");
-const dree = window.require("dree");
 
 function getNodeItems(node: Dree) {
   const items: ProjectItem[] = [];
 
   node?.children?.forEach((child) => {
-    if (child.type === dree.Type.DIRECTORY) {
+    if (child.type === "directory") {
       items.push(...getNodeItems(child));
       return items;
     }
