@@ -159,32 +159,9 @@ export function Project() {
       return;
     }
     const data = getProjectTreeData(projectData);
-
-    // if (search) {
-    //   console.log(search);
-    //   // const filteredData = _.pickBy(
-    //   //   data,
-    //   //   (value: ProjectTreeDataNode, key: string) => {
-    //   //     return (
-    //   //       value.data?.name?.toLowerCase().includes(search.toLowerCase()) ||
-    //   //       key === "root"
-    //   //     );
-    //   //   }
-    //   // );
-    //   const filteredData = itemSearch(data["root"], data, search);
-    //   console.log(filteredData);
-    //   setTreeData({ ...filteredData });
-    //   tree.current.expandAll();
-    //   return;
-    // }
-
     setTreeData(data);
   }, [projectData]);
 
-  useEffect(() => {
-    console.log("trreee - ", treeData);
-  }, [treeData]);
-  // tree?.current.rename
   const contextMenuRef = useRef(null);
   const [contextMenuTargetNode, setContextMenuTargetNode] =
     useState<ProjectTreeDataNode | null>(null);
@@ -309,7 +286,7 @@ export function Project() {
               </div>
               <div
                 className={css`
-                  overflow-y: scroll;
+                  overflow-y: auto;
                   max-height: 85vh;
                   padding-bottom: 100px;
                 `}
