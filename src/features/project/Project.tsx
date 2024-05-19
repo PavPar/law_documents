@@ -71,6 +71,7 @@ import { useHotkeys } from "react-hotkeys-hook";
 import { HOTKEYS_COMBINATIONS } from "src/app/constants";
 import { quitApp } from "./slice/api";
 import { useProjectStatusObserver } from "./hooks/useProjectStatusObserver";
+import { PanelGroup, Panel, PanelResizeHandle } from "react-resizable-panels";
 var _ = require("lodash");
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
@@ -271,220 +272,227 @@ export function Project() {
       <Layout>
         <ProjectHeader />
         <Layout>
-          <Sider
-            width="35%"
-            className={css`
-              background-color: #dcdcdc !important;
-              border-right: 1px black solid;
-              overflow: hidden;
-            `}
-          >
-            <div
+          <PanelGroup direction="horizontal">
+            <Panel
+              minSize={20}
+              defaultSize={35}
+              maxSize={40}
               className={css`
-                display: grid;
+                background-color: #dcdcdc !important;
+                border-right: 1px black solid;
+                overflow: hidden;
               `}
             >
               <div
                 className={css`
                   display: grid;
-                  grid-template-columns: 1fr auto;
                 `}
               >
-                <Search placeholder="Поиск" onSearch={onSearch} allowClear />
-                <Button
-                  onClick={() => {
-                    setGroupCreationModalVisible(true);
-                  }}
-                >
-                  <FolderAddFilled />
-                </Button>
-              </div>
-              <div
-                className={css`
-                  overflow-y: auto;
-                  max-height: 85vh;
-                  padding-bottom: 100px;
-                `}
-              >
-                <ContextMenu
-                  model={contextMenuItems}
-                  ref={contextMenuRef}
-                  breakpoint="767px"
-                />
-
-                <ControlledTreeEnvironment
-                  items={treeData}
-                  getItemTitle={(item: ProjectTreeDataNode) =>
-                    item.data.name || item.data.uid
-                  }
-                  viewState={{
-                    ["tree"]: {
-                      focusedItem,
-                      expandedItems,
-                      selectedItems,
-                    },
-                  }}
-                  canDragAndDrop={true}
-                  canDropOnFolder={true}
-                  canReorderItems={true}
-                  renderItemTitle={({ title, item }) => (
-                    <div
-                      className={css`
-                        display: grid;
-                        grid-auto-flow: column;
-                        gap: 1ch;
-                        justify-content: start;
-                        width: 100%;
-                      `}
-                      onContextMenu={(event) => {
-                        if (item.data?.type === "root") {
-                          return;
-                        }
-                        contextMenuRef.current.show(event);
-                        setContextMenuTargetNode(item);
-                      }}
-                    >
-                      <TreeIconSwitch item={item} />
-                      <span>{title}</span>
-                    </div>
-                  )}
-                  onFocusItem={(node) => {
-                    console.log("clicked", node);
-                    if (node.data.type === "group") {
-                      return;
-                    }
-                    if (node.data.type === "root") {
-                      return;
-                    }
-                    dispatch(
-                      displayImageByPathThunk(
-                        path.join(projectWorkDir, node.data.path)
-                      )
-                    );
-                    setFocusedItem(node.index);
-                    imageWrapperRef.current?.resetTransform();
-                  }}
-                  onExpandItem={(item) =>
-                    setExpandedItems([...expandedItems, item.index])
-                  }
-                  onCollapseItem={(item) =>
-                    setExpandedItems(
-                      expandedItems.filter(
-                        (expandedItemIndex) => expandedItemIndex !== item.index
-                      )
-                    )
-                  }
-                  onSelectItems={(items) => setSelectedItems(items)}
-                  canDropAt={(items, target) => {
-                    if (target.targetType === "item") {
-                      const item = treeData[target.targetItem];
-                    }
-
-                    return true;
-                  }}
-                  onRenameItem={(item, name) => {
-                    dispatch(
-                      setProjectItemData({
-                        uid: item.index.toString(),
-                        name: name,
-                      })
-                    );
-                  }}
-                  onDrop={(items, target) => {
-                    if (!items || !target) {
-                      return;
-                    }
-                    if (target.targetType === "item") {
-                      items.forEach((i) => {
-                        dispatch(
-                          setItemParent({
-                            uid: i.index.toString(),
-                            parentUID: target.targetItem.toString(),
-                          })
-                        );
-                      });
-                    }
-                    if (target.targetType === "between-items") {
-                      const targetParent =
-                        target.parentItem === "root"
-                          ? undefined
-                          : target.parentItem.toString();
-                      items.forEach((i) => {
-                        dispatch(
-                          setItemParent({
-                            uid: i.index.toString(),
-                            parentUID: targetParent,
-                          })
-                        );
-                      });
-                    }
-                  }}
-                >
-                  <Tree
-                    treeId="tree"
-                    rootItem="root"
-                    treeLabel="Tree Example"
-                    ref={tree}
-                  />
-                </ControlledTreeEnvironment>
-              </div>
-            </div>
-          </Sider>
-
-          <Layout>
-            <Content
-              className={css`
-                position: relative;
-              `}
-            >
-              {imageData ? (
-                <TransformWrapper
-                  limitToBounds={false}
-                  centerOnInit
-                  ref={imageWrapperRef}
-                  minScale={SCALE_BOUNDS.min}
-                  maxScale={SCALE_BOUNDS.max}
-                >
-                  <Controls />
-                  <TransformComponent
-                    wrapperClass={css`
-                      width: 100% !important;
-                      height: 100% !important;
-                    `}
-                  >
-                    <img
-                      className={css`
-                        max-width: 75vw;
-                        max-height: 90vh;
-                      `}
-                      src={`data:image/jpg;base64,${imageData}`}
-                    ></img>
-                  </TransformComponent>
-                </TransformWrapper>
-              ) : (
                 <div
                   className={css`
-                    display: flex;
-                    justify-content: center;
-                    align-items: center;
-                    width: 100%;
-                    height: 100%;
+                    display: grid;
+                    grid-template-columns: 1fr auto;
                   `}
                 >
-                  {displayImageStatus === "idle" && (
-                    <Text>Здесь будет изображение</Text>
-                  )}
-                  {displayImageStatus === "pending" && (
-                    <Text>Загрузка изображения</Text>
-                  )}
-                  {displayImageStatus === "failed" && (
-                    <Text>Не удалось открыть изображение</Text>
-                  )}
+                  <Search placeholder="Поиск" onSearch={onSearch} allowClear />
+                  <Button
+                    onClick={() => {
+                      setGroupCreationModalVisible(true);
+                    }}
+                  >
+                    <FolderAddFilled />
+                  </Button>
                 </div>
-              )}
-              {/* {projectData && <FileDropZone />} */}
-            </Content>
-          </Layout>
+                <div
+                  className={css`
+                    overflow-y: auto;
+                    max-height: 85vh;
+                    padding-bottom: 100px;
+                  `}
+                >
+                  <ContextMenu
+                    model={contextMenuItems}
+                    ref={contextMenuRef}
+                    breakpoint="767px"
+                  />
+
+                  <ControlledTreeEnvironment
+                    items={treeData}
+                    getItemTitle={(item: ProjectTreeDataNode) =>
+                      item.data.name || item.data.uid
+                    }
+                    viewState={{
+                      ["tree"]: {
+                        focusedItem,
+                        expandedItems,
+                        selectedItems,
+                      },
+                    }}
+                    canDragAndDrop={true}
+                    canDropOnFolder={true}
+                    canReorderItems={true}
+                    renderItemTitle={({ title, item }) => (
+                      <div
+                        className={css`
+                          display: grid;
+                          grid-auto-flow: column;
+                          gap: 1ch;
+                          justify-content: start;
+                          width: 100%;
+                        `}
+                        onContextMenu={(event) => {
+                          if (item.data?.type === "root") {
+                            return;
+                          }
+                          contextMenuRef.current.show(event);
+                          setContextMenuTargetNode(item);
+                        }}
+                      >
+                        <TreeIconSwitch item={item} />
+                        <span>{title}</span>
+                      </div>
+                    )}
+                    onFocusItem={(node) => {
+                      console.log("clicked", node);
+                      if (node.data.type === "group") {
+                        return;
+                      }
+                      if (node.data.type === "root") {
+                        return;
+                      }
+                      dispatch(
+                        displayImageByPathThunk(
+                          path.join(projectWorkDir, node.data.path)
+                        )
+                      );
+                      setFocusedItem(node.index);
+                      imageWrapperRef.current?.resetTransform();
+                    }}
+                    onExpandItem={(item) =>
+                      setExpandedItems([...expandedItems, item.index])
+                    }
+                    onCollapseItem={(item) =>
+                      setExpandedItems(
+                        expandedItems.filter(
+                          (expandedItemIndex) =>
+                            expandedItemIndex !== item.index
+                        )
+                      )
+                    }
+                    onSelectItems={(items) => setSelectedItems(items)}
+                    canDropAt={(items, target) => {
+                      if (target.targetType === "item") {
+                        const item = treeData[target.targetItem];
+                      }
+
+                      return true;
+                    }}
+                    onRenameItem={(item, name) => {
+                      dispatch(
+                        setProjectItemData({
+                          uid: item.index.toString(),
+                          name: name,
+                        })
+                      );
+                    }}
+                    onDrop={(items, target) => {
+                      if (!items || !target) {
+                        return;
+                      }
+                      if (target.targetType === "item") {
+                        items.forEach((i) => {
+                          dispatch(
+                            setItemParent({
+                              uid: i.index.toString(),
+                              parentUID: target.targetItem.toString(),
+                            })
+                          );
+                        });
+                      }
+                      if (target.targetType === "between-items") {
+                        const targetParent =
+                          target.parentItem === "root"
+                            ? undefined
+                            : target.parentItem.toString();
+                        items.forEach((i) => {
+                          dispatch(
+                            setItemParent({
+                              uid: i.index.toString(),
+                              parentUID: targetParent,
+                            })
+                          );
+                        });
+                      }
+                    }}
+                  >
+                    <Tree
+                      treeId="tree"
+                      rootItem="root"
+                      treeLabel="Tree Example"
+                      ref={tree}
+                    />
+                  </ControlledTreeEnvironment>
+                </div>
+              </div>
+            </Panel>
+            <PanelResizeHandle />
+            <Panel>
+              <Content
+                className={css`
+                  position: relative;
+                  width: 100%;
+                  height: 100%;
+                `}
+              >
+                {imageData ? (
+                  <TransformWrapper
+                    limitToBounds={false}
+                    centerOnInit
+                    ref={imageWrapperRef}
+                    minScale={SCALE_BOUNDS.min}
+                    maxScale={SCALE_BOUNDS.max}
+                  >
+                    <Controls />
+                    <TransformComponent
+                      wrapperClass={css`
+                        width: 100% !important;
+                        height: 100% !important;
+                      `}
+                    >
+                      <img
+                        className={css`
+                          max-width: 75vw;
+                          max-height: 90vh;
+                        `}
+                        src={`data:image/jpg;base64,${imageData}`}
+                      ></img>
+                    </TransformComponent>
+                  </TransformWrapper>
+                ) : (
+                  <div
+                    className={css`
+                      display: flex;
+                      justify-content: center;
+                      align-items: center;
+                      width: 100%;
+                      height: 100%;
+                    `}
+                  >
+                    {displayImageStatus === "idle" && (
+                      <Text>Здесь будет изображение</Text>
+                    )}
+                    {displayImageStatus === "pending" && (
+                      <Text>Загрузка изображения</Text>
+                    )}
+                    {displayImageStatus === "failed" && (
+                      <Text>Не удалось открыть изображение</Text>
+                    )}
+                  </div>
+                )}
+                {/* {projectData && <FileDropZone />} */}
+              </Content>
+            </Panel>
+          </PanelGroup>
         </Layout>
       </Layout>
     </Layout>
