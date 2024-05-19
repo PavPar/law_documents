@@ -67,6 +67,8 @@ import {
 } from "@ant-design/icons";
 import { useNavigate } from "react-router";
 import { APP_PAGES_PATHS } from "../App";
+import { useHotkeys } from "react-hotkeys-hook";
+import { HOTKEYS_COMBINATIONS } from "src/app/constants";
 var _ = require("lodash");
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
@@ -139,7 +141,7 @@ export function Project() {
 
   const [focusedItem, setFocusedItem] = useState<TreeItemIndex | undefined>();
   const [expandedItems, setExpandedItems] = useState([]);
-  const [selectedItems, setSelectedItems] = useState([]);
+  const [selectedItems, setSelectedItems] = useState<TreeItemIndex[]>([]);
 
   // const navigate = useNavigate();
 
@@ -205,6 +207,20 @@ export function Project() {
     setTreeData(filteredData);
   }
 
+  useHotkeys(
+    [HOTKEYS_COMBINATIONS.deleteElement, HOTKEYS_COMBINATIONS.deleteElementMac],
+    () => {
+      if (!selectedItems || selectedItems.length === 0) {
+        return;
+      }
+      dispatch(
+        removeItemsFromProject([
+          ...selectedItems.map((indx) => indx.toString()),
+        ])
+      );
+    }
+  );
+
   return (
     <Layout
       className={css({
@@ -229,12 +245,14 @@ export function Project() {
         onFinish={(values) => {
           setMoveToGroupModalVisible(false);
           console.log(values);
-          dispatch(
-            setItemParent({
-              uid: contextMenuTargetNode.data.uid,
-              parentUID: values?.group,
-            })
-          );
+          selectedItems.forEach((uid) => {
+            dispatch(
+              setItemParent({
+                uid: uid.toString(),
+                parentUID: values?.group,
+              })
+            );
+          });
         }}
       />
       <RenameItemModal
@@ -412,62 +430,6 @@ export function Project() {
                     ref={tree}
                   />
                 </ControlledTreeEnvironment>
-
-                {/* {treeData && (
-                <Tree
-                  style={{ padding: 0 }}
-                  expandedKeys={Object.assign(
-                    {
-                      "0": true,
-                    },
-                    ...treeData.children.map((c) => ({ [c.key]: true }))
-                  )}
-                  filter
-                  selectionMode="multiple"
-                  filterMode="lenient"
-                  onNodeClick={({ node }) => {
-                    console.log("clicked", node);
-                    if (node.data.type === "group") {
-                      return;
-                    }
-                    if (node.data.type === "root") {
-                      return;
-                    }
-                    dispatch(
-                      displayImageByPathThunk(
-                        path.join(projectWorkDir, node.data.path)
-                      )
-                    );
-                  }}
-                  value={[treeData]}
-                  onContextMenu={({ node }) => {
-                    if (node.data?.type === "root") {
-                      return;
-                    }
-                    contextMenuRef.current.show(event);
-                    setContextMenuTargetNode(node);
-                  }}
-                  dragdropScope="demo"
-                  onDragDrop={({ dragNode, dropNode }) => {
-                    if (!dropNode || !dropNode.data) {
-                      return;
-                    }
-                    if (dropNode.data.type === "image") {
-                      return;
-                    }
-                    if (dropNode.data.type === "root") {
-                      return;
-                    }
-
-                    dispatch(
-                      setItemParent({
-                        uid: dragNode.data.uid,
-                        parentUID: dropNode.data.uid,
-                      })
-                    );
-                  }}
-                />
-              )} */}
               </div>
             </div>
           </Sider>

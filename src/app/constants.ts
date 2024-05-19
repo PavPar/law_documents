@@ -46,3 +46,11 @@ export enum NOTIFICATION_MESSAGES {
   projectSaveSuccess = "Проект сохранен успешно",
   projectSaveFail = "Не удалось сохранить проект",
 }
+
+export enum HOTKEYS_COMBINATIONS {
+  save = "ctrl+s",
+  openProject = "ctrl+o",
+  deleteElement = "delete",
+  deleteElementMac = "backspace",
+  groupElements = "ctrl+g",
+}

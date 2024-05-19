@@ -17,7 +17,8 @@ import {
 } from "../slice/slice";
 import { AddFilesModal } from "../modals/addFilesModal/AddFilesModal";
 import { useNotification } from "../hooks/useNotification";
-import { NOTIFICATION_MESSAGES } from "src/app/constants";
+import { HOTKEYS_COMBINATIONS, NOTIFICATION_MESSAGES } from "src/app/constants";
+import { useHotkeys } from "react-hotkeys-hook";
 
 export function ProjectHeader() {
   const [isCreateProjectModalVisible, setCreateProjectModalVisible] =
@@ -31,6 +32,32 @@ export function ProjectHeader() {
     useProjectActions();
   const [notificationContext, notify] = useNotification();
 
+  function handleProjectSave() {
+    if (!projectData) {
+      notify("error", NOTIFICATION_MESSAGES.projectSaveFail);
+      return;
+    }
+    saveProject()
+      .then(() => {
+        notify("success", NOTIFICATION_MESSAGES.projectSaveSuccess);
+      })
+      .catch((err) => {
+        notify("error", NOTIFICATION_MESSAGES.projectSaveFail);
+        console.error(err);
+      });
+  }
+
+  function handleProjectOpen() {
+    openProject()
+      .then(() => {
+        notify("success", NOTIFICATION_MESSAGES.projectOpenSuccess);
+      })
+      .catch((err) => {
+        notify("error", NOTIFICATION_MESSAGES.projectOpenFail);
+        console.error(err);
+      });
+  }
+
   const items: MenuProps["items"] = [
     {
       key: "project-create",
@@ -43,17 +70,7 @@ export function ProjectHeader() {
     {
       key: "project-open",
       label: "открыть проект",
-      onClick: () => {
-        openProject()
-          .then(() => {
-            notify("success", NOTIFICATION_MESSAGES.projectOpenSuccess);
-          })
-          .catch((err) => {
-            notify("error", NOTIFICATION_MESSAGES.projectOpenFail);
-            console.error(err);
-          });
-        //open project test
-      },
+      onClick: handleProjectOpen,
     },
     {
       key: "project-addfiles",
@@ -68,18 +85,12 @@ export function ProjectHeader() {
       key: "project-write",
       label: "сохранить",
       disabled: !projectData,
-      onClick: () => {
-        saveProject()
-          .then(() => {
-            notify("success", NOTIFICATION_MESSAGES.projectSaveSuccess);
-          })
-          .catch((err) => {
-            notify("error", NOTIFICATION_MESSAGES.projectSaveFail);
-            console.error(err);
-          });
-      },
+      onClick: handleProjectSave,
     },
   ];
+
+  useHotkeys(HOTKEYS_COMBINATIONS.save, () => handleProjectSave());
+  useHotkeys(HOTKEYS_COMBINATIONS.openProject, () => handleProjectOpen());
 
   return (
     <>
