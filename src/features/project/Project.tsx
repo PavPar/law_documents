@@ -6,7 +6,16 @@ import {
   useRef,
   useState,
 } from "react";
-import { Button, Dropdown, Input, Layout, Typography } from "antd";
+import {
+  Button,
+  Dropdown,
+  Input,
+  Layout,
+  Modal,
+  Result,
+  Spin,
+  Typography,
+} from "antd";
 const { Header, Footer, Sider, Content } = Layout;
 import { css } from "@emotion/css";
 import { useAppDispatch, useAppSelector } from "../../app/store";
@@ -64,6 +73,7 @@ import {
   ZoomInOutlined,
   ZoomOutOutlined,
   CompressOutlined,
+  ExclamationCircleFilled,
 } from "@ant-design/icons";
 import { useNavigate } from "react-router";
 import { APP_PAGES_PATHS } from "../App";
@@ -84,6 +94,26 @@ enum SCALE_BOUNDS {
   min = 0.5,
 }
 const path = window.require("path");
+
+const { confirm } = Modal;
+
+const showConfirm = ({
+  onOk,
+  onCancel,
+}: {
+  onOk?: () => void;
+  onCancel?: () => void;
+}) => {
+  confirm({
+    title: "Подтвержение удаления",
+    icon: <ExclamationCircleFilled />,
+    content: "Вы уверены что хотите удалить эти элементы?",
+    okText: "Удалить",
+    cancelText: "Отмена",
+    onOk,
+    onCancel,
+  });
+};
 
 function TreeIconSwitch({ item }: { item: ProjectTreeDataNode }) {
   switch (item?.data.type) {
@@ -174,12 +204,6 @@ export function Project() {
       },
     },
     {
-      label: "Удалить",
-      command: () => {
-        dispatch(removeItemsFromProject([contextMenuTargetNode.data.uid]));
-      },
-    },
-    {
       label: "Переместить в группу",
       command: () => {
         setMoveToGroupModalVisible(true);
@@ -187,6 +211,7 @@ export function Project() {
     },
     {
       label: "Убрать из группы",
+
       disabled: !contextMenuTargetNode?.data?.parent_uid,
       command: () => {
         dispatch(
@@ -195,6 +220,21 @@ export function Project() {
             parentUID: undefined,
           })
         );
+      },
+    },
+    {
+      //@ts-ignore
+      label: <span style={{ color: "red" }}>Удалить</span>,
+      command: () => {
+        showConfirm({
+          onOk: () => {
+            dispatch(
+              removeItemsFromProject([
+                ...selectedItems.map((indx) => indx.toString()),
+              ])
+            );
+          },
+        });
       },
     },
   ];
@@ -211,11 +251,16 @@ export function Project() {
       if (!selectedItems || selectedItems.length === 0) {
         return;
       }
-      dispatch(
-        removeItemsFromProject([
-          ...selectedItems.map((indx) => indx.toString()),
-        ])
-      );
+
+      showConfirm({
+        onOk: () => {
+          dispatch(
+            removeItemsFromProject([
+              ...selectedItems.map((indx) => indx.toString()),
+            ])
+          );
+        },
+      });
     }
   );
 
@@ -345,6 +390,11 @@ export function Project() {
                             return;
                           }
                           contextMenuRef.current.show(event);
+                          setSelectedItems(
+                            Array.from(
+                              new Set([...(selectedItems || []), item.index])
+                            )
+                          );
                           setContextMenuTargetNode(item);
                         }}
                       >
@@ -479,13 +529,19 @@ export function Project() {
                     `}
                   >
                     {displayImageStatus === "idle" && (
-                      <Text>Здесь будет изображение</Text>
+                      <Result title="Файл для просмотра не выбран" />
                     )}
                     {displayImageStatus === "pending" && (
-                      <Text>Загрузка изображения</Text>
+                      <Result
+                        icon={<Spin size="large" />}
+                        title="Загрузка файла"
+                      />
                     )}
                     {displayImageStatus === "failed" && (
-                      <Text>Не удалось открыть изображение</Text>
+                      <Result
+                        status="warning"
+                        title="Не удалось открыть изображение"
+                      />
                     )}
                   </div>
                 )}

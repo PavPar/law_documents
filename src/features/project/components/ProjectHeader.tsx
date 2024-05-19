@@ -21,6 +21,12 @@ import { HOTKEYS_COMBINATIONS, NOTIFICATION_MESSAGES } from "src/app/constants";
 import { useHotkeys } from "react-hotkeys-hook";
 import { HotkeysListModal } from "../modals/hotkeysListModal/HotkeysListModal";
 import { useProjectStatusObserver } from "../hooks/useProjectStatusObserver";
+import {
+  AppstoreOutlined,
+  FileAddOutlined,
+  ProfileOutlined,
+  SaveOutlined,
+} from "@ant-design/icons";
 const { Text } = Typography;
 export function ProjectHeader() {
   const [isCreateProjectModalVisible, setCreateProjectModalVisible] =
@@ -56,7 +62,10 @@ export function ProjectHeader() {
       .then(() => {
         notify("success", NOTIFICATION_MESSAGES.projectOpenSuccess);
       })
-      .catch((err) => {
+      .catch((err: Error) => {
+        if (err?.message === "canceled") {
+          return;
+        }
         notify("error", NOTIFICATION_MESSAGES.projectOpenFail);
         console.error(err);
       });
@@ -146,17 +155,19 @@ export function ProjectHeader() {
           `}
         >
           <Dropdown menu={{ items }} trigger={["click"]}>
-            <Button>Проект</Button>
+            <Button icon={<ProfileOutlined />}>Проект</Button>
           </Dropdown>
           <Button
             onClick={() => {
               handleProjectSave();
             }}
+            icon={<SaveOutlined />}
             disabled={!projectData}
           >
             Сохранить
           </Button>
           <Button
+            icon={<FileAddOutlined />}
             onClick={() => {
               setAddFileModalVisible(true);
             }}
@@ -165,6 +176,7 @@ export function ProjectHeader() {
             Добавить файлы в проект
           </Button>
           <Button
+            icon={<AppstoreOutlined />}
             onClick={() => {
               setHotkeysModalVisible(true);
             }}

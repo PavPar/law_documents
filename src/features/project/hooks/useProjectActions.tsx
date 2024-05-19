@@ -78,6 +78,7 @@ export function useProjectActions() {
   async function addFilesToProject() {
     const openFileDialogRes = await openFileOpenDialog();
     if (openFileDialogRes.canceled) {
+      throw new Error("canceled");
       return;
     }
     await addFilesToProjectLogic(openFileDialogRes.filePaths);
@@ -87,6 +88,7 @@ export function useProjectActions() {
     const openProjectDialogRes = await openProjectOpenDialog();
 
     if (openProjectDialogRes.canceled) {
+      throw new Error("canceled");
       return;
     }
 

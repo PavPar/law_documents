@@ -6,6 +6,8 @@ export async function handleOpenProjectDialog(): Promise<HandleOpenFileDialogRes
   const result = await dialog.showOpenDialog({
     properties: ["openFile"],
     filters: [{ extensions: ["json"], name: "123" }],
+    buttonLabel: "Открыть",
+    title: "Открыть проект",
   });
 
   return result;

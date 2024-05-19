@@ -75,8 +75,11 @@ export function FileDropZone({}: FileDropZoneProps) {
             .then(() => {
               notify("success", NOTIFICATION_MESSAGES.fileAddSuccess);
             })
-            .catch((err) => {
-              notify("success", NOTIFICATION_MESSAGES.fileAddFail);
+            .catch((err: Error) => {
+              if (err?.message === "canceled") {
+                return;
+              }
+              notify("error", NOTIFICATION_MESSAGES.fileAddFail);
               console.error(err);
             })
             .finally(() => {

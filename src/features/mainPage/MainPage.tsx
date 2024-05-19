@@ -86,7 +86,10 @@ export function MainPage() {
             onClick={() => {
               openProject()
                 .then(() => navigate(APP_PAGES_PATHS.project))
-                .catch((err) => {
+                .catch((err: Error) => {
+                  if (err?.message === "canceled") {
+                    return;
+                  }
                   notify("error", NOTIFICATION_MESSAGES.projectOpenFail);
                   console.error(err);
                 });

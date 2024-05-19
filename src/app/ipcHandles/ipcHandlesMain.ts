@@ -25,6 +25,8 @@ export function ipcHandlersMain() {
     async (event, someArgument) => {
       const result = await dialog.showOpenDialog({
         properties: ["openDirectory"],
+        buttonLabel: "Выбрать",
+        title: "Выбрать папку",
       });
 
       return result;
