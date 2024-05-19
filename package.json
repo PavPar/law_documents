@@ -51,6 +51,7 @@
     "@types/node": "^20.11.28",
     "antd": "^5.14.1",
     "dree": "^4.7.0",
+    "electron-is-dev": "^3.0.1",
     "electron-squirrel-startup": "^1.0.0",
     "eslint-import-resolver-typescript": "^3.6.1",
     "file-loader": "^6.2.0",

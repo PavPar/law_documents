@@ -98,6 +98,51 @@ function getParentItemMap(items: ProjectItem[]) {
   return map;
 }
 
+export function gatherItemsToDelete(tree: ProjectTreeData, uids: string[]) {
+  const itemsToDelete = new Set<string>([]);
+
+  const itemsToProcess: string[] = [];
+  uids.forEach((uid) => {
+    switch (tree[uid]?.data?.type) {
+      case "group":
+        itemsToProcess.push(uid);
+        break;
+      case "image":
+        itemsToDelete.add(uid);
+        break;
+      case "root":
+        break;
+      default:
+        itemsToDelete.add(uid);
+        break;
+    }
+  });
+
+  if (itemsToProcess.length === 0) {
+    return Array.from(itemsToDelete);
+  }
+
+  function recursive(uid: string) {
+    const children = tree[uid]?.children || [];
+    itemsToDelete.add(uid);
+
+    children.forEach((cuid) => {
+      recursive(cuid.toString());
+    });
+  }
+
+  itemsToProcess.forEach((i) => {
+    recursive(i);
+  });
+
+  console.log(
+    Array.from(itemsToDelete).map((id) => {
+      return tree[id];
+    })
+  );
+  return Array.from(itemsToDelete);
+}
+
 // export function getRootNodeChildren(
 //   rootNode: ProjectTreeDataNode,
 //   items: ProjectItem[]

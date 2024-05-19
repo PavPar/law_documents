@@ -45,6 +45,7 @@ import {
   ProjectTreeData,
   ProjectTreeDataNode,
   filesToProjectStructure,
+  gatherItemsToDelete,
   getProjectTreeData,
   itemSearch,
 } from "./utils/projectStructureMethods";
@@ -255,9 +256,11 @@ export function Project() {
       showConfirm({
         onOk: () => {
           dispatch(
-            removeItemsFromProject([
-              ...selectedItems.map((indx) => indx.toString()),
-            ])
+            removeItemsFromProject(
+              gatherItemsToDelete(treeData, [
+                ...selectedItems.map((indx) => indx.toString()),
+              ])
+            )
           );
         },
       });
