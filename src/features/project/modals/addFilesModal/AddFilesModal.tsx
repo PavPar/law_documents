@@ -14,7 +14,7 @@ export function AddFilesModal({ ...props }: AddFilesModalProps) {
       centered
       destroyOnClose
       okButtonProps={{ hidden: true }}
-      cancelText={"Отменить"}
+      cancelText={"Закрыть"}
     >
       <AddFilesModalBody />
     </Modal>

@@ -19,11 +19,13 @@ import { AddFilesModal } from "../modals/addFilesModal/AddFilesModal";
 import { useNotification } from "../hooks/useNotification";
 import { HOTKEYS_COMBINATIONS, NOTIFICATION_MESSAGES } from "src/app/constants";
 import { useHotkeys } from "react-hotkeys-hook";
+import { HotkeysListModal } from "../modals/hotkeysListModal/HotkeysListModal";
 
 export function ProjectHeader() {
   const [isCreateProjectModalVisible, setCreateProjectModalVisible] =
     useState(false);
   const [isAddFileModalVisible, setAddFileModalVisible] = useState(false);
+  const [isHotkeysModalVisible, setHotkeysModalVisible] = useState(false);
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
   const projectData = useAppSelector(selectProjectData);
@@ -72,21 +74,21 @@ export function ProjectHeader() {
       label: "открыть проект",
       onClick: handleProjectOpen,
     },
-    {
-      key: "project-addfiles",
-      label: "добавить файлы в проект",
-      disabled: !projectData,
-      onClick: () => {
-        // addFilesToProject().catch((err) => console.error(err));
-        setAddFileModalVisible(true);
-      },
-    },
-    {
-      key: "project-write",
-      label: "сохранить",
-      disabled: !projectData,
-      onClick: handleProjectSave,
-    },
+    // {
+    //   key: "project-addfiles",
+    //   label: "добавить файлы в проект",
+    //   disabled: !projectData,
+    //   onClick: () => {
+    //     // addFilesToProject().catch((err) => console.error(err));
+    //     setAddFileModalVisible(true);
+    //   },
+    // },
+    // {
+    //   key: "project-write",
+    //   label: "сохранить",
+    //   disabled: !projectData,
+    //   onClick: handleProjectSave,
+    // },
   ];
 
   useHotkeys(HOTKEYS_COMBINATIONS.save, () => handleProjectSave());
@@ -103,6 +105,10 @@ export function ProjectHeader() {
           setCreateProjectModalVisible(false);
           createProject(values.name).catch((err) => console.error(err));
         }}
+      />
+      <HotkeysListModal
+        open={isHotkeysModalVisible}
+        onCancel={() => setHotkeysModalVisible(false)}
       />
       <AddFilesModal
         open={isAddFileModalVisible}
@@ -130,10 +136,39 @@ export function ProjectHeader() {
         >
           <AppLogo size={OWL_LOGO_SIZE.xs} level={5} />
         </div>
-        <div>
+        <div
+          className={css`
+            display: flex;
+            margin: auto 0;
+            gap: 5px;
+          `}
+        >
           <Dropdown menu={{ items }} trigger={["click"]}>
             <Button>Проект</Button>
           </Dropdown>
+          <Button
+            onClick={() => {
+              handleProjectSave();
+            }}
+            disabled={!projectData}
+          >
+            Сохранить
+          </Button>
+          <Button
+            onClick={() => {
+              setAddFileModalVisible(true);
+            }}
+            disabled={!projectData}
+          >
+            Добавить файлы в проект
+          </Button>
+          <Button
+            onClick={() => {
+              setHotkeysModalVisible(true);
+            }}
+          >
+            Горячие клавиши
+          </Button>
         </div>
       </Header>
     </>
