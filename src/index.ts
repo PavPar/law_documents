@@ -12,8 +12,6 @@ import { ipcHandlersMain } from "./app/ipcHandles/ipcHandlesMain";
 declare const MAIN_WINDOW_WEBPACK_ENTRY = "./root";
 declare const MAIN_WINDOW_PRELOAD_WEBPACK_ENTRY: string;
 
-const isDev = require("electron-is-dev");
-
 // Handle creating/removing shortcuts on Windows when installing/uninstalling.
 if (require("electron-squirrel-startup")) {
   app.quit();
@@ -39,9 +37,8 @@ const createWindow = (): void => {
   mainWindow.loadURL(MAIN_WINDOW_WEBPACK_ENTRY);
 
   // Open the DevTools.
-  if (isDev) {
-    mainWindow.webContents.openDevTools();
-  }
+
+  // mainWindow.webContents.openDevTools();
 
   ipcHandlersMain();
 };
