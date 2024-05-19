@@ -1,7 +1,7 @@
 {
   "name": "organizer",
   "productName": "organizer",
-  "version": "0.0.1",
+  "version": "1.0.0",
   "description": "Delo organizer",
   "main": ".webpack/main",
   "scripts": {
