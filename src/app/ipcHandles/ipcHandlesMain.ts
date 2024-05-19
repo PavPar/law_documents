@@ -10,6 +10,7 @@ import { handleScanDirForImages } from "./handleFunctions/scanDirForImagesHandle
 import { handleOpenProjectDialog } from "./handleFunctions/openProjectDialogHandle";
 import { handleFileRead } from "./handleFunctions/readFileHandle";
 import { handleFileWrite } from "./handleFunctions/writeFileHandle";
+import { handleAppQuit } from "./handleFunctions/quitAppHandle";
 
 export type CreateDirHandlePayload = {
   path: string;
@@ -72,4 +73,5 @@ export function ipcHandlersMain() {
   ipcMain.handle(IPC_HANDLES.OPEN_PROJECT_DIALOG, handleOpenProjectDialog);
   ipcMain.handle(IPC_HANDLES.FILE_READ, handleFileRead);
   ipcMain.handle(IPC_HANDLES.FILE_WRITE, handleFileWrite);
+  ipcMain.handle(IPC_HANDLES.APP_QUIT, handleAppQuit);
 }

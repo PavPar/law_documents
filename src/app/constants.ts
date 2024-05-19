@@ -11,6 +11,7 @@ export enum IPC_HANDLES {
   OPEN_PROJECT_DIALOG = "open-project-dialog",
   FILE_READ = "file_read",
   FILE_WRITE = "file_write",
+  APP_QUIT = "app_quit",
   // === old ones
   FILE_OPEN_DIALOG = "file-dialog",
   DISPLAY_IMAGE = "image-display",

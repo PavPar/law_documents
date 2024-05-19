@@ -69,6 +69,8 @@ import { useNavigate } from "react-router";
 import { APP_PAGES_PATHS } from "../App";
 import { useHotkeys } from "react-hotkeys-hook";
 import { HOTKEYS_COMBINATIONS } from "src/app/constants";
+import { quitApp } from "./slice/api";
+import { useProjectStatusObserver } from "./hooks/useProjectStatusObserver";
 var _ = require("lodash");
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
@@ -128,7 +130,7 @@ export function Project() {
 
   const displayImageStatus = useAppSelector(selectDisplayImageStatus);
   const imageData = useAppSelector(selectData);
-
+  const { projectHasData, projectWasChanged } = useProjectStatusObserver();
   const [treeData, setTreeData] = useState<ProjectTreeData>({});
   const [isGroupCreationModalVisible, setGroupCreationModalVisible] =
     useState(false);
@@ -145,16 +147,11 @@ export function Project() {
 
   // const navigate = useNavigate();
 
-  useEffect(() => {
-    if (files) {
-      //   setTreeData(useTreeNodeStructure(files));
-      filesToProjectStructure(files);
-    }
-  }, [files]);
-
-  useEffect(() => {
-    console.log(status);
-  }, [status]);
+  // useEffect(() => {
+  //   if (files) {
+  //     filesToProjectStructure(files);
+  //   }
+  // }, [files]);
 
   useEffect(() => {
     if (!projectData) {

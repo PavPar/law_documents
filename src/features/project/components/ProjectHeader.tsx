@@ -1,4 +1,4 @@
-import { Button, Dropdown, MenuProps } from "antd";
+import { Button, Dropdown, MenuProps, Typography } from "antd";
 import { Header } from "antd/es/layout/layout";
 import { getDirectoryTreeThunk } from "../slice/thunks";
 import { css } from "@emotion/css";
@@ -20,7 +20,8 @@ import { useNotification } from "../hooks/useNotification";
 import { HOTKEYS_COMBINATIONS, NOTIFICATION_MESSAGES } from "src/app/constants";
 import { useHotkeys } from "react-hotkeys-hook";
 import { HotkeysListModal } from "../modals/hotkeysListModal/HotkeysListModal";
-
+import { useProjectStatusObserver } from "../hooks/useProjectStatusObserver";
+const { Text } = Typography;
 export function ProjectHeader() {
   const [isCreateProjectModalVisible, setCreateProjectModalVisible] =
     useState(false);
@@ -32,6 +33,7 @@ export function ProjectHeader() {
 
   const { addFilesToProject, createProject, openProject, saveProject } =
     useProjectActions();
+  const { projectHasData, projectWasChanged } = useProjectStatusObserver();
   const [notificationContext, notify] = useNotification();
 
   function handleProjectSave() {
@@ -115,14 +117,14 @@ export function ProjectHeader() {
         onCancel={() => setAddFileModalVisible(false)}
         // onOk={() => setGroupCreationModalVisible(false)}
       />
+
       <Header
         className={css`
           display: grid;
           grid-template-columns: 25% auto;
-          grid-auto-flow: column;
+          grid-auto-flow: row;
           padding: 0;
           background-color: #dcdcdc;
-          border-bottom: 1px black solid;
         `}
       >
         <div
@@ -171,6 +173,21 @@ export function ProjectHeader() {
           </Button>
         </div>
       </Header>
+      <div
+        className={css`
+          width: 100%;
+          background-color: ${projectHasData && projectWasChanged
+            ? "yellow"
+            : "#dcdcdc"};
+          min-height: 3ch;
+          border-bottom: 1px black solid;
+          text-align: center;
+        `}
+      >
+        {projectHasData && projectWasChanged && (
+          <Text>В проекте есть несохраненные изменения</Text>
+        )}
+      </div>
     </>
   );
 }

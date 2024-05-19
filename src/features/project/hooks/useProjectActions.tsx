@@ -19,6 +19,7 @@ import {
   setProjectWorkDirPath,
   setProject,
   setProjectRootFilePath,
+  setOriginalProject,
 } from "../slice/slice";
 import { scanForImagesInDirThunk } from "../slice/thunks";
 import { ProjectItem } from "../slice/types";
@@ -105,12 +106,14 @@ export function useProjectActions() {
 
     //   dispatch(setProjectItems(project.items));
     dispatch(setProject(project));
+    dispatch(setOriginalProject(project));
 
     dispatch(setProjectRootFilePath(projectFilePath));
     //   dispatch(setProjec)
   }
 
   async function saveProject() {
+    dispatch(setOriginalProject(projectData));
     await writeFile({
       fpath: path.join(projectRootFilePath),
       content: JSON.stringify(projectData),

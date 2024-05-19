@@ -21,6 +21,7 @@ type State = {
   projectWorkDirPath?: string;
   projectRootFilePath?: string;
   project?: ProjectData;
+  originalProject?: ProjectData;
   //delete later
   files?: Dree;
   status: FetchStatus;
@@ -63,6 +64,9 @@ export const projectSlice = createSlice({
     },
     setProject: (state: State, action: PayloadAction<ProjectData>) => {
       state.project = action.payload;
+    },
+    setOriginalProject: (state: State, action: PayloadAction<ProjectData>) => {
+      state.originalProject = action.payload;
     },
     addItemsToProject: (
       state: State,
@@ -174,6 +178,7 @@ export const {
   setProject,
   setItemParent,
   setProjectItemData,
+  setOriginalProject,
 } = projectSlice.actions;
 
 export const selectProjectPath = (state: RootState) =>
@@ -185,6 +190,8 @@ export const selectDisplayImageStatus = (state: RootState) =>
 export const selectData = (state: RootState) => state.project.data;
 
 export const selectProjectData = (state: RootState) => state.project.project;
+export const selectOriginalProjectData = (state: RootState) =>
+  state.project.originalProject;
 export const selectProjectRootFilePath = (state: RootState) =>
   state.project.projectRootFilePath;
 

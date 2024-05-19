@@ -89,3 +89,7 @@ export function writeFile(payload: HandleFileWritePayload) {
     payload
   ) as Promise<HandleFileWriteResult>;
 }
+
+export function quitApp() {
+  return ipcRenderer.invoke(IPC_HANDLES.APP_QUIT);
+}
