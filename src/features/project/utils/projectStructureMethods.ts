@@ -319,3 +319,10 @@ export function itemSearch(
 
   return filteredTree;
 }
+
+export function parseStringIntoNames(string: string, parser: string) {
+  const parsedString = string.split(parser).filter((name) => {
+    return name.trim().length !== 0;
+  });
+  return parsedString;
+}

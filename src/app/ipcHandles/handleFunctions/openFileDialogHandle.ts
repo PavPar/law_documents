@@ -15,7 +15,7 @@ export async function handleOpenFileDialog(): Promise<HandleOpenFileDialogResult
   const result = await dialog.showOpenDialog({
     properties: ["multiSelections", "openFile"],
     buttonLabel: "Выбрать",
-    title: "Добавление файлов в проект",
+    title: "Добавление файлов в дело",
   });
 
   return result;

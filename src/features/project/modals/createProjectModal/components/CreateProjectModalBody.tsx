@@ -15,12 +15,12 @@ export function CreateProjectModalBody({
         }}
       >
         <Form.Item
-          label="Имя проекта"
+          label="Имя дела"
           name="name"
           rules={[
             {
               required: true,
-              message: "Пожалуйста введите имя проекта",
+              message: "Пожалуйста введите имя дела",
             },
           ]}
         >

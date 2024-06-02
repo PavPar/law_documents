@@ -42,10 +42,10 @@ export const PROJECT_FILE_INITAL_STATE: ProjectData = Object.seal({
 export enum NOTIFICATION_MESSAGES {
   fileAddSuccess = "Файлы добавлены успешно",
   fileAddFail = "Не удалось добавить файлы",
-  projectOpenSuccess = "Проект открыт успешно",
-  projectOpenFail = "Не удалось открыть проект",
-  projectSaveSuccess = "Проект сохранен успешно",
-  projectSaveFail = "Не удалось сохранить проект",
+  projectOpenSuccess = "Дело открыто успешно",
+  projectOpenFail = "Не удалось открыть дело",
+  projectSaveSuccess = "Дело сохранено успешно",
+  projectSaveFail = "Не удалось сохранить дело",
 }
 
 export enum HOTKEYS_COMBINATIONS {

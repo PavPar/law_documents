@@ -15,7 +15,7 @@ export function CreateProjectModal({
   return (
     <Modal
       {...props}
-      title={"Создать проект"}
+      title={"Создать дело"}
       centered
       destroyOnClose
       cancelText={"Отменить"}

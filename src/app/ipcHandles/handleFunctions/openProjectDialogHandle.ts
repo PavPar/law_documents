@@ -7,7 +7,7 @@ export async function handleOpenProjectDialog(): Promise<HandleOpenFileDialogRes
     properties: ["openFile"],
     filters: [{ extensions: ["json"], name: "123" }],
     buttonLabel: "Открыть",
-    title: "Открыть проект",
+    title: "Открыть дело",
   });
 
   return result;
