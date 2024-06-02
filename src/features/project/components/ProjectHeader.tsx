@@ -74,7 +74,7 @@ export function ProjectHeader() {
   const items: MenuProps["items"] = [
     {
       key: "project-create",
-      label: "создать новый проект",
+      label: "Создать новое дело",
       onClick: () => {
         // createProject("new-project");
         setCreateProjectModalVisible(true);
@@ -82,24 +82,9 @@ export function ProjectHeader() {
     },
     {
       key: "project-open",
-      label: "открыть проект",
+      label: "Открыть дело",
       onClick: handleProjectOpen,
     },
-    // {
-    //   key: "project-addfiles",
-    //   label: "добавить файлы в проект",
-    //   disabled: !projectData,
-    //   onClick: () => {
-    //     // addFilesToProject().catch((err) => console.error(err));
-    //     setAddFileModalVisible(true);
-    //   },
-    // },
-    // {
-    //   key: "project-write",
-    //   label: "сохранить",
-    //   disabled: !projectData,
-    //   onClick: handleProjectSave,
-    // },
   ];
 
   useHotkeys(HOTKEYS_COMBINATIONS.save, () => handleProjectSave());
@@ -155,7 +140,7 @@ export function ProjectHeader() {
           `}
         >
           <Dropdown menu={{ items }} trigger={["click"]}>
-            <Button icon={<ProfileOutlined />}>Проект</Button>
+            <Button icon={<ProfileOutlined />}>Дело</Button>
           </Dropdown>
           <Button
             onClick={() => {
@@ -173,7 +158,7 @@ export function ProjectHeader() {
             }}
             disabled={!projectData}
           >
-            Добавить файлы в проект
+            Добавить файлы в дело
           </Button>
           <Button
             icon={<AppstoreOutlined />}
@@ -197,7 +182,7 @@ export function ProjectHeader() {
         `}
       >
         {projectHasData && projectWasChanged && (
-          <Text>В проекте есть несохраненные изменения</Text>
+          <Text>В деле есть несохраненные изменения</Text>
         )}
       </div>
     </>

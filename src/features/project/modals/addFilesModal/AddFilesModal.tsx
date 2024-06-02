@@ -10,7 +10,7 @@ export function AddFilesModal({ ...props }: AddFilesModalProps) {
   return (
     <Modal
       {...props}
-      title={"Добавить файлы в проект"}
+      title={"Добавить файлы в дело"}
       centered
       destroyOnClose
       okButtonProps={{ hidden: true }}

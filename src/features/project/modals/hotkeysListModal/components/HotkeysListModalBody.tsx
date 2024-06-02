@@ -39,11 +39,11 @@ export function HotkeysListModalBody({}: HotkeysListModalBodyProps) {
     >
       <HotkeyCard
         text={HOTKEYS_COMBINATIONS.openProject}
-        description="Открыть проект"
+        description="Открыть дело"
       />
       <HotkeyCard
         text={HOTKEYS_COMBINATIONS.save}
-        description="Сохранить проект"
+        description="Сохранить дело"
       />
       <HotkeyCard
         text={[
