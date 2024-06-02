@@ -1,11 +1,13 @@
 import { ArrowRightOutlined } from "@ant-design/icons";
 import { css } from "@emotion/css";
-import { Button, Form, Input, List, Typography } from "antd";
+import { Button, Form, Input, List, Select, Typography } from "antd";
 import { useState } from "react";
+import { useAppSelector } from "src/app/store";
+import { selectProjectData } from "src/features/project/slice/slice";
 import { parseStringIntoNames } from "src/features/project/utils/projectStructureMethods";
 
 export type GroupCreationModalBodyProps = {
-  onFinish: (values: { name: string[] }) => void;
+  onFinish: (values: { name: string[]; group?: string }) => void;
 };
 
 const { Text } = Typography;
@@ -14,17 +16,23 @@ export function GroupCreationModalBody({
   onFinish,
 }: GroupCreationModalBodyProps) {
   const [data, setData] = useState<string>("");
+  const project = useAppSelector(selectProjectData);
+  const { Option } = Select;
+  const projectGroups = project?.items.filter((i) => i.type === "group") || [];
 
   return (
     <section
       className={css`
-        height: 50vh;
+        height: 60vh;
       `}
     >
       <Form
         id="groupForm"
         onFinish={(values) => {
-          onFinish({ name: parseStringIntoNames(data, "\n") });
+          onFinish({
+            name: parseStringIntoNames(data, "\n"),
+            group: values?.group,
+          });
         }}
         layout="vertical"
       >
@@ -70,6 +78,21 @@ export function GroupCreationModalBody({
               }}
             />
           </div>
+        </Form.Item>
+        <Form.Item
+          label="Имя группы"
+          tooltip="Имя группы в которую будут добавлены новые группы (По умолчанию будет добавлено в корень проекта)"
+          name="group"
+        >
+          <Select placeholder="Выберите группу при необходимости">
+            {projectGroups.map((g) => {
+              return (
+                <Option key={g.uid} value={g.uid}>
+                  {g?.name || g.uid}
+                </Option>
+              );
+            })}
+          </Select>
         </Form.Item>
       </Form>
     </section>

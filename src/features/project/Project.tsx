@@ -278,11 +278,13 @@ export function Project() {
         open={isGroupCreationModalVisible}
         onCancel={() => setGroupCreationModalVisible(false)}
         // onOk={() => setGroupCreationModalVisible(false)}
-        onFinish={({ name }) => {
+        onFinish={({ name, group }) => {
           setGroupCreationModalVisible(false);
           name.forEach((n) => {
             dispatch(
-              addItemsToProject([{ type: "group", uid: uuidv4(), name: n }])
+              addItemsToProject([
+                { type: "group", uid: uuidv4(), name: n, parent_uid: group },
+              ])
             );
           });
         }}

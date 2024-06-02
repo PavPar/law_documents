@@ -16,7 +16,7 @@ export function GroupCreationModal({
   return (
     <Modal
       {...props}
-      title={"Создание группы"}
+      title={"Создание групп"}
       centered
       destroyOnClose
       cancelText={"Отменить"}
