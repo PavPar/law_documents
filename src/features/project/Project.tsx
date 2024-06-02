@@ -402,7 +402,15 @@ export function Project() {
                         }}
                       >
                         <TreeIconSwitch item={item} />
-                        <span>{title}</span>
+                        <span
+                          className={css`
+                            text-overflow: ellipsis;
+                            white-space: nowrap;
+                            overflow: hidden;
+                          `}
+                        >
+                          {title}
+                        </span>
                       </div>
                     )}
                     onFocusItem={(node) => {
