@@ -74,7 +74,7 @@ export function ProjectHeader() {
   const items: MenuProps["items"] = [
     {
       key: "project-create",
-      label: "Создать новое дело",
+      label: "создать новое дело",
       onClick: () => {
         // createProject("new-project");
         setCreateProjectModalVisible(true);
@@ -82,7 +82,7 @@ export function ProjectHeader() {
     },
     {
       key: "project-open",
-      label: "Открыть дело",
+      label: "открыть дело",
       onClick: handleProjectOpen,
     },
   ];
