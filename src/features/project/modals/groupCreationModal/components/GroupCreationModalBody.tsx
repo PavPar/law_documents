@@ -84,7 +84,7 @@ export function GroupCreationModalBody({
           tooltip="Имя группы в которую будут добавлены новые группы (По умолчанию будет добавлено в корень проекта)"
           name="group"
         >
-          <Select placeholder="Выберите группу при необходимости">
+          <Select placeholder="Выберите группу при необходимости" allowClear>
             {projectGroups.map((g) => {
               return (
                 <Option key={g.uid} value={g.uid}>
