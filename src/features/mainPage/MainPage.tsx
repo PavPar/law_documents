@@ -99,6 +99,15 @@ export function MainPage() {
           </Button>
         </div>
       </section>
+      <span
+        className={css`
+          position: absolute;
+          right: 0;
+          bottom: 0;
+        `}
+      >
+        v 1.0.1
+      </span>
     </Layout>
   );
 }

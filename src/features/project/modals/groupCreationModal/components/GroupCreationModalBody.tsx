@@ -23,7 +23,7 @@ export function GroupCreationModalBody({
   return (
     <section
       className={css`
-        height: 60vh;
+        height: 430px;
       `}
     >
       <Form
@@ -50,13 +50,13 @@ export function GroupCreationModalBody({
               display: grid;
               grid-template-columns: 1fr 10px 1fr;
               gap: 10px;
-              height: 50vh;
+              height: 330px;
             `}
           >
             <Input.TextArea
               className={css`
-                min-height: 50vh !important;
-                max-height: 50vh !important;
+                min-height: 330px !important;
+                max-height: 330px !important;
                 overflow: auto;
               `}
               placeholder="Введите одно или несколько имен групп (Каждая новая группа должна начинаться с новой строки)"
