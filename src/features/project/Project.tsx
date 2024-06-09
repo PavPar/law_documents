@@ -85,6 +85,7 @@ import { HOTKEYS_COMBINATIONS } from "src/app/constants";
 import { quitApp } from "./slice/api";
 import { useProjectStatusObserver } from "./hooks/useProjectStatusObserver";
 import { PanelGroup, Panel, PanelResizeHandle } from "react-resizable-panels";
+import { ProjectItem } from "./slice/types";
 var _ = require("lodash");
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
@@ -183,7 +184,8 @@ export function Project() {
   const [isMoveToGroupModalVisible, setMoveToGroupModalVisible] =
     useState(false);
   const [isRenameItemModalVisible, setRenameItemModalVisible] = useState(false);
-
+  const [displayedImageNode, setDisplayedNode] =
+    useState<TreeItem<ProjectItem> | null>(null);
   const tree = useRef<TreeRef<any>>();
   const imageWrapperRef = useRef<ReactZoomPanPinchContentRef>();
 
@@ -450,6 +452,7 @@ export function Project() {
                       if (node.data.type === "root") {
                         return;
                       }
+                      setDisplayedNode(node);
                       dispatch(
                         displayImageByPathThunk(
                           path.join(projectWorkDir, node.data.path)
@@ -534,6 +537,18 @@ export function Project() {
                   height: 100%;
                 `}
               >
+                <div
+                  className={css`
+                    position: fixed;
+                    z-index: 2;
+                    background-color: white;
+                    text-overflow: ellipsis;
+                    border-radius: 5px;
+                    padding: 5px;
+                  `}
+                >
+                  {displayedImageNode?.data?.name}
+                </div>
                 {imageData ? (
                   <TransformWrapper
                     limitToBounds={false}
