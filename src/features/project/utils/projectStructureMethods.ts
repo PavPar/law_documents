@@ -12,8 +12,12 @@ import {
 } from "../../../app/constants";
 import { createDirByPath, createFileByPath, readFile } from "../slice/api";
 import { TreeItemIndex, TreeItem } from "react-complex-tree";
+import type { TreeSelectProps } from "antd";
 
 const path = window.require("path");
+
+type ArrayElement<ArrayType extends readonly unknown[]> =
+  ArrayType extends readonly (infer ElementType)[] ? ElementType : never;
 
 function getNodeItems(node: Dree) {
   const items: ProjectItem[] = [];
@@ -89,9 +93,13 @@ type ParentUIDChildItemMap = {
   [parentID: string | "root"]: ProjectItem[];
 };
 
-function getParentItemMap(items: ProjectItem[]) {
+function getParentItemMap(items: ProjectItem[], pick?: ProjectItemTypes[]) {
   const map: ParentUIDChildItemMap = {};
+  const pickedItems = new Set(pick);
   items.forEach((i) => {
+    if (pickedItems.size > 0 && !pickedItems.has(i.type)) {
+      return;
+    }
     const parentUID = i?.parent_uid || "root";
     map[parentUID] = [...(map[parentUID] || []), i];
   });
@@ -325,4 +333,42 @@ export function parseStringIntoNames(string: string, parser: string) {
     return name.trim().length !== 0;
   });
   return parsedString;
+}
+
+type TreeSelectItem = ArrayElement<TreeSelectProps["treeData"]>;
+
+export function getTreeSelectStructure(projectData?: ProjectData) {
+  const items = projectData?.items || [];
+
+  const nodesMap = getParentItemMap(items, ["group"]);
+
+  const rootItems = nodesMap["root"] || [];
+
+  const treeData: TreeSelectProps["treeData"] = [];
+
+  function recursive(node: ProjectItem): TreeSelectItem {
+    const item: TreeSelectItem = {
+      title: node.name,
+      value: node.uid,
+    };
+
+    const children = nodesMap[node.uid] || [];
+
+    if (children.length > 0) {
+      item.children = children.map((child) => {
+        return recursive(child);
+      });
+    }
+
+    return item;
+  }
+
+  rootItems.forEach((node) => {
+    if (node.type !== ProductItemType.group) {
+      return;
+    }
+    treeData.push(recursive(node));
+  });
+
+  return treeData;
 }

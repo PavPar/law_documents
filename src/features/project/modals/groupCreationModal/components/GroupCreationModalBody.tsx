@@ -1,10 +1,21 @@
 import { ArrowRightOutlined } from "@ant-design/icons";
 import { css } from "@emotion/css";
-import { Button, Form, Input, List, Select, Typography } from "antd";
-import { useState } from "react";
+import {
+  Button,
+  Form,
+  Input,
+  List,
+  Select,
+  TreeSelect,
+  Typography,
+} from "antd";
+import { useMemo, useState } from "react";
 import { useAppSelector } from "src/app/store";
 import { selectProjectData } from "src/features/project/slice/slice";
-import { parseStringIntoNames } from "src/features/project/utils/projectStructureMethods";
+import {
+  getTreeSelectStructure,
+  parseStringIntoNames,
+} from "src/features/project/utils/projectStructureMethods";
 
 export type GroupCreationModalBodyProps = {
   onFinish: (values: { name: string[]; group?: string }) => void;
@@ -18,8 +29,8 @@ export function GroupCreationModalBody({
   const [data, setData] = useState<string>("");
   const project = useAppSelector(selectProjectData);
   const { Option } = Select;
-  const projectGroups = project?.items.filter((i) => i.type === "group") || [];
 
+  const treeData = useMemo(() => getTreeSelectStructure(project), []);
   return (
     <section
       className={css`
@@ -84,15 +95,13 @@ export function GroupCreationModalBody({
           tooltip="Имя группы в которую будут добавлены новые группы (По умолчанию будет добавлено в корень проекта)"
           name="group"
         >
-          <Select placeholder="Выберите группу при необходимости" allowClear>
-            {projectGroups.map((g) => {
-              return (
-                <Option key={g.uid} value={g.uid}>
-                  {g?.name || g.uid}
-                </Option>
-              );
-            })}
-          </Select>
+          <TreeSelect
+            treeData={treeData}
+            placeholder="Выберите группу при необходимости"
+            treeNodeFilterProp="title"
+            allowClear
+            showSearch
+          />
         </Form.Item>
       </Form>
     </section>

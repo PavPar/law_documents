@@ -1,8 +1,12 @@
-import { Button, Form, Input, Select, Typography } from "antd";
+import { Button, Form, Input, Select, TreeSelect, Typography } from "antd";
 import { useAppSelector } from "../../../../../app/store";
 import { selectProjectData } from "../../../../../features/project/slice/slice";
 import { ProjectItem } from "../../../../../features/project/slice/types";
-import { ProjectTreeDataNode } from "src/features/project/utils/projectStructureMethods";
+import {
+  getTreeSelectStructure,
+  ProjectTreeDataNode,
+} from "src/features/project/utils/projectStructureMethods";
+import { useMemo } from "react";
 
 export type MoveToGroupModalBodyProps = {
   onFinish: (values: { group: string }) => void;
@@ -14,9 +18,8 @@ export function MoveToGroupModalBody({
 }: MoveToGroupModalBodyProps) {
   const project = useAppSelector(selectProjectData);
   const { Option } = Select;
-  const projectGroups = project?.items.filter(
-    (i) => i.type === "group" && i.uid !== target.data.uid
-  );
+
+  const treeData = useMemo(() => getTreeSelectStructure(project), []);
   return (
     <section>
       <Form
@@ -36,15 +39,12 @@ export function MoveToGroupModalBody({
             },
           ]}
         >
-          <Select placeholder="Пожалуйста выберите группу">
-            {projectGroups.map((g) => {
-              return (
-                <Option key={g.uid} value={g.uid}>
-                  {g?.name || g.uid}
-                </Option>
-              );
-            })}
-          </Select>
+          <TreeSelect
+            treeData={treeData}
+            placeholder="Пожалуйста выберите группу"
+            showSearch
+            treeNodeFilterProp="title"
+          />
         </Form.Item>
       </Form>
     </section>

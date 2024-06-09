@@ -75,6 +75,8 @@ import {
   ZoomOutOutlined,
   CompressOutlined,
   ExclamationCircleFilled,
+  RotateLeftOutlined,
+  RotateRightOutlined,
 } from "@ant-design/icons";
 import { useNavigate } from "react-router";
 import { APP_PAGES_PATHS } from "../App";
@@ -125,8 +127,14 @@ function TreeIconSwitch({ item }: { item: ProjectTreeDataNode }) {
   }
 }
 
-const Controls = () => {
-  const { zoomIn, zoomOut, centerView, instance } = useControls();
+const Controls = ({
+  onRotateLeft,
+  onRotateRight,
+}: {
+  onRotateLeft: () => void;
+  onRotateRight: () => void;
+}) => {
+  const { zoomIn, zoomOut, centerView } = useControls();
 
   return (
     <div
@@ -147,6 +155,12 @@ const Controls = () => {
       </Button>
       <Button onClick={() => centerView()}>
         <CompressOutlined />
+      </Button>
+      <Button onClick={() => onRotateLeft()}>
+        <RotateLeftOutlined />
+      </Button>
+      <Button onClick={() => onRotateRight()}>
+        <RotateRightOutlined />
       </Button>
     </div>
   );
@@ -176,15 +190,21 @@ export function Project() {
   const [focusedItem, setFocusedItem] = useState<TreeItemIndex | undefined>();
   const [expandedItems, setExpandedItems] = useState([]);
   const [selectedItems, setSelectedItems] = useState<TreeItemIndex[]>([]);
+  const [imageRotation, setImageRotation] = useState<number>(0);
 
-  // const navigate = useNavigate();
+  useEffect(() => {
+    if (Math.abs(imageRotation) === 360) {
+      setImageRotation(0);
+    }
+  }, [imageRotation]);
 
-  // useEffect(() => {
-  //   if (files) {
-  //     filesToProjectStructure(files);
-  //   }
-  // }, [files]);
+  function onRotateRight() {
+    setImageRotation(imageRotation + 90);
+  }
 
+  function onRotateLeft() {
+    setImageRotation(imageRotation - 90);
+  }
   useEffect(() => {
     if (!projectData) {
       return;
@@ -298,6 +318,9 @@ export function Project() {
           setMoveToGroupModalVisible(false);
           console.log(values);
           selectedItems.forEach((uid) => {
+            if (uid === values?.group) {
+              return;
+            }
             dispatch(
               setItemParent({
                 uid: uid.toString(),
@@ -519,7 +542,10 @@ export function Project() {
                     minScale={SCALE_BOUNDS.min}
                     maxScale={SCALE_BOUNDS.max}
                   >
-                    <Controls />
+                    <Controls
+                      onRotateLeft={onRotateLeft}
+                      onRotateRight={onRotateRight}
+                    />
                     <TransformComponent
                       wrapperClass={css`
                         width: 100% !important;
@@ -530,6 +556,7 @@ export function Project() {
                         className={css`
                           max-width: 75vw;
                           max-height: 90vh;
+                          transform: rotate(${imageRotation}deg);
                         `}
                         src={`data:image/jpg;base64,${imageData}`}
                       ></img>
