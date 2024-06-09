@@ -298,6 +298,16 @@ export function itemSearch(
   const filteredTree: ProjectTreeData = {};
   filteredTree[root.index] = root;
 
+  function recursiveAddChildren(itemKey: ProjectTreeDataNode["index"]) {
+    const item = tree[itemKey];
+    const children = item.children || [];
+    if (children) {
+      children.forEach((c) => {
+        recursiveAddChildren(c);
+      });
+    }
+    filteredTree[item.index] = item;
+  }
   function recursiveFn(itemKey: ProjectTreeDataNode["index"]): boolean {
     const item = tree[itemKey];
     const children = item.children || [];
@@ -312,8 +322,12 @@ export function itemSearch(
       }, false);
     }
 
-    if (isSearchedValue || hasAnyChildMatch) {
+    if (hasAnyChildMatch) {
       filteredTree[item.index] = item;
+    }
+
+    if (isSearchedValue) {
+      recursiveAddChildren(item.index);
     }
 
     return isSearchedValue || hasAnyChildMatch;
